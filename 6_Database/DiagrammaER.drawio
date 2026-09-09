@@ -1,0 +1,55 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Pagina-1" id="CHJL0syhuf0TnkDOkLdV">
+    <mxGraphModel dx="673" dy="433" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-1" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="User" vertex="1">
+          <mxGeometry height="60" width="120" x="330" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="Statistiche" vertex="1">
+          <mxGeometry height="60" width="120" x="330" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-10" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.156;exitY=-0.02;exitDx=0;exitDy=0;endArrow=oval;endFill=0;fillColor=#000000;exitPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="380" y="130" as="sourcePoint" />
+            <mxPoint x="380" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-11" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=oval;endFill=1;fillColor=#000000;">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="100" />
+            </Array>
+            <mxPoint x="340" y="130" as="sourcePoint" />
+            <mxPoint x="340" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-12" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.156;exitY=-0.02;exitDx=0;exitDy=0;endArrow=oval;endFill=0;fillColor=#000000;exitPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="440" y="130" as="sourcePoint" />
+            <mxPoint x="440" y="100" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-13" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=10;" value="Id" vertex="1">
+          <mxGeometry height="30" width="60" x="310" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-14" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=10;" value="username" vertex="1">
+          <mxGeometry height="30" width="60" x="353" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-15" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=10;" value="password" vertex="1">
+          <mxGeometry height="30" width="60" x="410" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-23" edge="1" parent="1" source="xCeWPWLS4260ZNPo9mFD-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.999;exitY=0.172;exitDx=0;exitDy=0;endArrow=oval;endFill=0;fillColor=#000000;exitPerimeter=0;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="480" y="140" as="sourcePoint" />
+            <mxPoint x="480" y="140" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="xCeWPWLS4260ZNPo9mFD-24" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=10;" value="impostazioni" vertex="1">
+          <mxGeometry height="28" width="60" x="484" y="125" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
