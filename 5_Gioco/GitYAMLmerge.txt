@@ -1,0 +1,4 @@
+git lfs install
+"C:\Program Files\Unity\Hub\Editor\6000.1.4f1\Editor\Data\Tools\UnityYAMLMerge.exe"
+git config --local mergetool.unityyamlmerge.cmd "'C:\Program Files\Unity\Hub\Editor\6000.1.4f1\Editor\Data\Tools\UnityYAMLMerge.exe' merge -p \"\$BASE\" \"\$REMOTE\" \"\$LOCAL\" \"\$MERGED\""
+git config --local mergetool.unityyamlmerge.trustExitCode false
