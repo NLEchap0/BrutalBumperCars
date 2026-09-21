@@ -1,4 +1,7 @@
+using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [Serializable]
@@ -6,8 +9,15 @@ public class StatisticsData
 {
     public int victories;
     public int defeats;
+
     public int kills;
     public int deaths;
+
+    public int damageDealt;
+    public int damageTaken;
+    public int damageDefended;
+
+    public List<CarDistanceData> carDistances;
 
     public float VSRatio
     {
@@ -34,5 +44,13 @@ public class StatisticsData
             return (float)Math.Round(kd, 2);
 
         }
+    }
+
+    public List<CarDistanceData> GetTopCars(int count)
+    {
+        return carDistances
+            .OrderByDescending(car => car.distance)
+            .Take(count)
+            .ToList();
     }
 }
