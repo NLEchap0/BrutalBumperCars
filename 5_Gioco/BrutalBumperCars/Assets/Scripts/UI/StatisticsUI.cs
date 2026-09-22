@@ -17,25 +17,17 @@ public class StatisticsUI : MonoBehaviour
     [SerializeField] private TMP_Text damageTakenText;
     [SerializeField] private TMP_Text damageDefendedText;
 
-    [Header("Top 3 Auto")][SerializeField] private TMP_Text top1CarNameText;
+    [Header("Top 3 Auto")]
+    [SerializeField] private TMP_Text top1CarNameText;
     [SerializeField] private TMP_Text top1DistanceText;
     [SerializeField] private TMP_Text top2CarNameText;
     [SerializeField] private TMP_Text top2DistanceText;
     [SerializeField] private TMP_Text top3CarNameText;
     [SerializeField] private TMP_Text top3DistanceText;
 
-    private JsonDataService dataService;
-
     private void Start()
     {
-        dataService = new JsonDataService();
-
-        LoadStatistics();
-    }
-
-    private void LoadStatistics()
-    {
-        StatisticsData statistics = dataService.Load();
+        StatisticsData statistics = StatisticsManager.Instance.Data;
 
         DisplayStatistics(statistics);
         DisplayTopCars(statistics);
@@ -43,17 +35,17 @@ public class StatisticsUI : MonoBehaviour
 
     private void DisplayStatistics(StatisticsData statistics)
     {
-        victoriesText.text = statistics.victories.ToString();
-        defeatsText.text = statistics.defeats.ToString();
-        vsRatioText.text = statistics.VSRatio.ToString("F2");
+        victoriesText.text = FormatNumber(statistics.victories);
+        defeatsText.text = FormatNumber(statistics.defeats);
+        vsRatioText.text = statistics.VSRatio.ToString("F1");
 
-        killsText.text = statistics.kills.ToString();
-        deathsText.text = statistics.deaths.ToString();
-        umRatioText.text = statistics.KDRatio.ToString("F2");
+        killsText.text = FormatNumber(statistics.kills);
+        deathsText.text = FormatNumber(statistics.deaths);
+        umRatioText.text = statistics.KDRatio.ToString("F1");
 
-        damageDealtText.text = statistics.damageDealt.ToString("F1");
-        damageTakenText.text = statistics.damageTaken.ToString("F1");
-        damageDefendedText.text = statistics.damageDefended.ToString("F1");
+        damageDealtText.text = FormatNumber(statistics.damageDealt);
+        damageTakenText.text = FormatNumber(statistics.damageTaken);
+        damageDefendedText.text = FormatNumber(statistics.damageDefended);
     }
 
     private void DisplayTopCars(StatisticsData statistics)
@@ -65,11 +57,25 @@ public class StatisticsUI : MonoBehaviour
     }
     private void DisplayCar(List<CarDistanceData> topCars, int index, TMP_Text carNameText, TMP_Text distanceText) 
     { 
-        if (index < topCars.Count) { 
-            carNameText.text = topCars[index].carName; 
-            distanceText.text = topCars[index].distance.ToString("F1") + " m"; 
+        if (index < topCars.Count) {
+            carNameText.text = topCars[index].carName;
+            distanceText.text = FormatNumber(topCars[index].distance);
         } else { 
             carNameText.text = "-"; distanceText.text = "-"; 
         } 
+    }
+
+    private string FormatNumber(long value)
+    {
+        if (value < 1000)
+            return value.ToString("0");
+
+        if (value < 1000000)
+            return (value / 1000.0).ToString("0.#") + "K";
+
+        if (value < 1000000000)
+            return (value / 1000000.0).ToString("0.#") + "M";
+
+        return (value / 1000000000.0).ToString("0.#") + "B";
     }
 }

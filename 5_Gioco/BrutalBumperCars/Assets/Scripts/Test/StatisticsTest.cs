@@ -25,11 +25,11 @@ public class StatisticsTest : MonoBehaviour
             damageTaken = 100,
             damageDefended = 60,
             carDistances = new List<CarDistanceData> {
-                new CarDistanceData { carName = "Thunder", distance = 152.4f },
-                new CarDistanceData { carName = "Rocket", distance = 87.2f }, 
-                new CarDistanceData { carName = "Buggy", distance = 203.8f }, 
-                new CarDistanceData { carName = "Classic", distance = 45.6f },
-                new CarDistanceData { carName = "Monster", distance = 124.7f } 
+                new CarDistanceData { carName = "Thunder", distance = 152 },
+                new CarDistanceData { carName = "Rocket", distance = 87 }, 
+                new CarDistanceData { carName = "Buggy", distance = 203 }, 
+                new CarDistanceData { carName = "Classic", distance = 45 },
+                new CarDistanceData { carName = "Monster", distance = 124 } 
             }
         };
 

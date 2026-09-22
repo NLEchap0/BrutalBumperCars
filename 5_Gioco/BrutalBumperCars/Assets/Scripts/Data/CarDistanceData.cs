@@ -4,5 +4,5 @@ using System;
 public class CarDistanceData
 {
     public string carName;
-    public float distance;
+    public long distance;
 }

@@ -7,19 +7,19 @@ using UnityEngine;
 [Serializable]
 public class StatisticsData
 {
-    public int victories;
-    public int defeats;
+    public long victories;
+    public long defeats;
 
-    public int kills;
-    public int deaths;
+    public long kills;
+    public long deaths;
 
-    public int damageDealt;
-    public int damageTaken;
-    public int damageDefended;
+    public long damageDealt;
+    public long damageTaken;
+    public long damageDefended;
 
     public List<CarDistanceData> carDistances;
 
-    public float VSRatio
+    public double VSRatio
     {
         get
         {
@@ -32,7 +32,7 @@ public class StatisticsData
         }
     }
 
-    public float KDRatio
+    public double KDRatio
     {
         get
         {
