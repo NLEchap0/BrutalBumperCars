@@ -11,3 +11,9 @@
 *.wav filter=lfs diff=lfs merge=lfs -text
 *.mp3 filter=lfs diff=lfs merge=lfs -text
 *.mp4 filter=lfs diff=lfs merge=lfs -text
+
+7_Allegati/MOCKUP/*.png -filter -diff -merge
+7_Allegati/MOCKUP/*.jpg -filter -diff -merge
+6_Database/ER_DB.png -filter -diff -merge
+7_Allegati/UseCase.jpg -filter -diff -merge
+5_Gioco/BrutalBumperCars/Assets/TutorialInfo/Icons/URP.png -filter -diff -merge
