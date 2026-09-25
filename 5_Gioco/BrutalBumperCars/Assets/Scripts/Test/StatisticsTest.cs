@@ -33,14 +33,14 @@ public class StatisticsTest : MonoBehaviour
             }
         };
 
-        dataService.Save(statistics);
+        dataService.SaveStatistics(statistics);
 
         Debug.Log("Statistiche salvate.");
     }
 
     private void LoadTestData()
     {
-        StatisticsData statistics = dataService.Load();
+        StatisticsData statistics = dataService.LoadStatistics();
 
         Debug.Log("Vittorie: " + statistics.victories);
         Debug.Log("Sconfitte: " + statistics.defeats);

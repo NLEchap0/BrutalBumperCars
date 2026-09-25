@@ -25,11 +25,11 @@ public class StatisticsManager : MonoBehaviour
         dataService = new JsonDataService();
 
         // Carica le statistiche all'avvio
-        Data = dataService.Load();
+        Data = dataService.LoadStatistics();
     }
 
     public void Save()
     {
-        dataService.Save(Data);
+        dataService.SaveStatistics(Data);
     }
 }

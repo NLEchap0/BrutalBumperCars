@@ -13,14 +13,14 @@ public class JsonDataService
         );
     }
 
-    public void Save(StatisticsData statistics)
+    public void SaveStatistics(StatisticsData statistics)
     {
         string json = JsonUtility.ToJson(statistics, true);
 
         File.WriteAllText(filePath, json);
     }
 
-    public StatisticsData Load()
+    public StatisticsData LoadStatistics()
     {
         if (!File.Exists(filePath))
         {
@@ -30,5 +30,24 @@ public class JsonDataService
         string json = File.ReadAllText(filePath);
 
         return JsonUtility.FromJson<StatisticsData>(json);
+    }
+
+    public void SaveSettings(SettingsData settings)
+    {
+        string json = JsonUtility.ToJson(settings, true);
+
+        File.WriteAllText(filePath, json);
+    }
+
+    public SettingsData LoadSettings()
+    {
+        if (!File.Exists(filePath))
+        {
+            return new SettingsData();
+        }
+
+        string json = File.ReadAllText(filePath);
+
+        return JsonUtility.FromJson<SettingsData>(json);
     }
 }
