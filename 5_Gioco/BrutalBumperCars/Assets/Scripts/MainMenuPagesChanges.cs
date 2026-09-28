@@ -7,7 +7,10 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     {
         AvviaPartita,
         ApriImpostazioni,
-        ChiudiGioco
+        ChiudiGioco,
+        ImpostazioniToMain,
+        ImpostazioniToComandi,
+        ComandiToImpostazioni
     }
 
     [Header("Configurazione Oggetto")]
@@ -15,10 +18,9 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
 
     [Header("Riferimenti UI")]
     [SerializeField] private GameObject bg;
-    [Header("Riferimenti UI")]
     [SerializeField] private GameObject pannelloMenu;
-    [Header("Riferimenti UI")]
     [SerializeField] private GameObject pannelloImpostazioni;
+    [SerializeField] private GameObject pannelloComandi;
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -45,9 +47,28 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
 
             case ActionType.ApriImpostazioni:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Apertura Impostazioni!");
-                pannelloImpostazioni.SetActive(true); 
+                pannelloImpostazioni.SetActive(true);
                 bg.SetActive(true);
                 pannelloMenu.SetActive(false);
+                break;
+
+            case ActionType.ImpostazioniToMain:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Apertura menu dalle impostazioni!");
+                pannelloImpostazioni.SetActive(false);
+                bg.SetActive(false);
+                pannelloMenu.SetActive(true);
+                break;
+
+            case ActionType.ImpostazioniToComandi:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Apertura comandi dalle impostazioni!");
+                pannelloImpostazioni.SetActive(false);
+                pannelloComandi.SetActive(true);
+                break;
+
+            case ActionType.ComandiToImpostazioni:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Apertura impostazioni dai comandi!");
+                pannelloImpostazioni.SetActive(true);
+                pannelloComandi.SetActive(false);
                 break;
 
             default:
