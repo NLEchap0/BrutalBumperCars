@@ -60,4 +60,10 @@ public class SettingsManager : MonoBehaviour
         Data.effect = value;
         // Applicazione effettiva tramite AudioMixer
     }
+
+    public void OnSensitivityChange(float value)
+    {
+        Data.sensitivity = value;
+        // Applicazione effettiva (necessario avere la scena di gioco)
+    }
 }
