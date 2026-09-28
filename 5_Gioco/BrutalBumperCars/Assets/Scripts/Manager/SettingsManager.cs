@@ -34,7 +34,9 @@ public class SettingsManager : MonoBehaviour
     public void OnFullScreenChange(bool value)
     {
         Data.fullscreen = value;
-        Screen.fullScreen = value;
+
+        Screen.fullScreen = !Screen.fullScreen;
+
     }
 
     public void OnResolutionChange(int value)
