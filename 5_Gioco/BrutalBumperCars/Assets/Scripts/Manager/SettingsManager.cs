@@ -24,6 +24,8 @@ public class SettingsManager : MonoBehaviour
         dataService = new JsonDataService();
 
         Data = dataService.LoadSettings();
+
+        ApplySettings();
     }
 
     public void Save()
@@ -31,11 +33,19 @@ public class SettingsManager : MonoBehaviour
         dataService.SaveSettings(Data);
     }
 
+    private void ApplySettings()
+    {
+        Screen.fullScreen = Data.fullscreen;
+
+        QualitySettings.SetQualityLevel(Data.resolution);
+
+        // Ricordare implementazione per audio e sensibilità
+    }
+
     public void OnFullScreenChange(bool value)
     {
         Data.fullscreen = value;
-
-        Screen.fullScreen = !Screen.fullScreen;
+        Screen.fullScreen = value;
 
     }
 
