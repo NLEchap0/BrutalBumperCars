@@ -54,6 +54,7 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
 
             case ActionType.ImpostazioniToMain:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Apertura menu dalle impostazioni!");
+                SettingsManager.Instance.Save();
                 pannelloImpostazioni.SetActive(false);
                 bg.SetActive(false);
                 pannelloMenu.SetActive(true);

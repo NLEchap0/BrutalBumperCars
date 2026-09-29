@@ -32,7 +32,7 @@ public class SettingsUI : MonoBehaviour
 
         // Graphics
         fullscreenToggle.SetIsOnWithoutNotify(data.fullscreen);
-        resolutionSlider.SetValueWithoutNotify(data.resolution / 2f);
+        resolutionSlider.SetValueWithoutNotify(data.resolution);
 
         // Audio
         effectSlider.SetValueWithoutNotify(data.effect);
@@ -54,9 +54,7 @@ public class SettingsUI : MonoBehaviour
 
     public void OnResolutionChanged(float value)
     {
-        int qualityLevel = Mathf.RoundToInt(value * 2f);
-
-        SettingsManager.Instance.OnResolutionChange(qualityLevel);
+        SettingsManager.Instance.OnResolutionChange(Mathf.RoundToInt(value));
     }
 
     public void OnEffectChanged(float value)
