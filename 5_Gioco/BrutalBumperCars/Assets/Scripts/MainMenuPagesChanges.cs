@@ -22,6 +22,9 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject pannelloImpostazioni;
     [SerializeField] private GameObject pannelloComandi;
 
+    [Header("Avvio Partita")]
+    [SerializeField] private Animator cameraAnimator;
+
     public void OnPointerClick(PointerEventData eventData)
     {
         GestisciAzione(azioneDaEseguire);
@@ -42,34 +45,36 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
 
             case ActionType.AvviaPartita:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Avvio Partita!");
-                // Es: UnityEngine.SceneManagement.SceneManager.LoadScene("NomeScena");
+                if (cameraAnimator != null)
+                {
+                    cameraAnimator.Play("MainCameraGameSelect");
+                }
+                MenuNavigationManager.Instance.FaiUscireASinistra(pannelloMenu);
                 break;
 
             case ActionType.ApriImpostazioni:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Apertura Impostazioni!");
-                pannelloImpostazioni.SetActive(true);
-                bg.SetActive(true);
-                pannelloMenu.SetActive(false);
+                MenuNavigationManager.Instance.TransizioneAvanti(pannelloMenu, pannelloImpostazioni, bg);
                 break;
 
             case ActionType.ImpostazioniToMain:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Apertura menu dalle impostazioni!");
-                SettingsManager.Instance.Save();
-                pannelloImpostazioni.SetActive(false);
-                bg.SetActive(false);
-                pannelloMenu.SetActive(true);
+                if (SettingsManager.Instance != null)
+                {
+                    SettingsManager.Instance.Save();
+                }
+                MenuNavigationManager.Instance.TransizioneIndietro(pannelloImpostazioni, pannelloMenu, bg);
                 break;
 
             case ActionType.ImpostazioniToComandi:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Apertura comandi dalle impostazioni!");
-                pannelloImpostazioni.SetActive(false);
-                pannelloComandi.SetActive(true);
+                // Sposta le impostazioni e porta dentro i comandi, mantenendo il BG attivo
+                MenuNavigationManager.Instance.TransizioneAvanti(pannelloImpostazioni, pannelloComandi);
                 break;
 
             case ActionType.ComandiToImpostazioni:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Apertura impostazioni dai comandi!");
-                pannelloImpostazioni.SetActive(true);
-                pannelloComandi.SetActive(false);
+                MenuNavigationManager.Instance.TransizioneIndietro(pannelloComandi, pannelloImpostazioni);
                 break;
 
             default:
