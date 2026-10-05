@@ -48,9 +48,13 @@ public class StatisticsData
 
     public List<CarDistanceData> GetTopCars(int count)
     {
-        return carDistances
+        if (carDistances != null)
+        {
+            return carDistances
             .OrderByDescending(car => car.distance)
             .Take(count)
             .ToList();
+        }
+        return new List<CarDistanceData>();
     }
 }

@@ -7,27 +7,29 @@ public class JsonDataService
 
     public JsonDataService()
     {
-        filePath = Path.Combine(
-            Application.persistentDataPath,
-            "statistics.json"
-        );
+        filePath = Application.persistentDataPath;
+    }
+
+    public string CombinePath(string name)
+    {
+        return Path.Combine(filePath, name);
     }
 
     public void SaveStatistics(StatisticsData statistics)
     {
         string json = JsonUtility.ToJson(statistics, true);
 
-        File.WriteAllText(filePath, json);
+        File.WriteAllText(CombinePath("statistics.json"), json);
     }
 
     public StatisticsData LoadStatistics()
     {
-        if (!File.Exists(filePath))
+        if (!File.Exists(CombinePath("statistics.json")))
         {
             return new StatisticsData();
         }
 
-        string json = File.ReadAllText(filePath);
+        string json = File.ReadAllText(CombinePath("statistics.json"));
 
         return JsonUtility.FromJson<StatisticsData>(json);
     }
@@ -36,17 +38,17 @@ public class JsonDataService
     {
         string json = JsonUtility.ToJson(settings, true);
 
-        File.WriteAllText(filePath, json);
+        File.WriteAllText(CombinePath("settings.json"), json);
     }
 
     public SettingsData LoadSettings()
     {
-        if (!File.Exists(filePath))
+        if (!File.Exists(CombinePath("settings.json")))
         {
             return new SettingsData();
         }
 
-        string json = File.ReadAllText(filePath);
+        string json = File.ReadAllText(CombinePath("settings.json"));
 
         return JsonUtility.FromJson<SettingsData>(json);
     }

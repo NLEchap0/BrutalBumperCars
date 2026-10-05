@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class StatisticsManager : MonoBehaviour
@@ -6,7 +7,8 @@ public class StatisticsManager : MonoBehaviour
 
     public StatisticsData Data { get; private set; }
 
-    private JsonDataService dataService;
+    private DatabaseManager database;
+    private StatisticsRepository repository;
 
     private void Awake()
     {
@@ -22,14 +24,116 @@ public class StatisticsManager : MonoBehaviour
         // Mantiene il manager tra le scene
         DontDestroyOnLoad(gameObject);
 
-        dataService = new JsonDataService();
+        database = new DatabaseManager();
+        repository = new StatisticsRepository(database);
 
-        // Carica le statistiche all'avvio
-        Data = dataService.LoadStatistics();
+        LoadStatistics();
+    }
+
+    private void LoadStatistics()
+    {
+        StatisticsRecord record = repository.LoadStatistics();
+
+        if (record == null)
+        {
+            Data = CreateDefaultStatistics();
+
+            Save();
+            return;
+        }
+
+        Data = ConvertToData(record);
+
+        LoadCarDistances();
+        Debug.Log("caricato");
     }
 
     public void Save()
     {
-        dataService.SaveStatistics(Data);
+        StatisticsRecord record = ConvertToRecord(Data);
+
+        repository.SaveStatistics(record);
+
+        SaveCarDistances();
+        Debug.Log("salvato");
+    }
+
+    private StatisticsData CreateDefaultStatistics()
+    {
+        return new StatisticsData
+        {
+            carDistances = new List<CarDistanceData>()
+        };
+    }
+
+    private StatisticsRecord ConvertToRecord(
+        StatisticsData data)
+    {
+        return new StatisticsRecord
+        {
+            Id = 1,
+
+            Victories = data.victories,
+            Defeats = data.defeats,
+
+            Kills = data.kills,
+            Deaths = data.deaths,
+
+            DamageDealt = data.damageDealt,
+            DamageTaken = data.damageTaken,
+            DamageDefended = data.damageDefended
+        };
+    }
+
+    private StatisticsData ConvertToData(
+        StatisticsRecord record)
+    {
+        return new StatisticsData
+        {
+            victories = record.Victories,
+            defeats = record.Defeats,
+
+            kills = record.Kills,
+            deaths = record.Deaths,
+
+            damageDealt = record.DamageDealt,
+            damageTaken = record.DamageTaken,
+            damageDefended = record.DamageDefended,
+
+            carDistances = new List<CarDistanceData>()
+        };
+    }
+
+    private void LoadCarDistances()
+    {
+        List<CarDistanceRecord> records =
+            repository.LoadCarDistances(1);
+
+        foreach (CarDistanceRecord record in records)
+        {
+            Data.carDistances.Add(new CarDistanceData
+            {
+                carName = record.CarName,
+                distance = record.Distance
+            });
+        }
+    }
+
+    private void SaveCarDistances()
+    {
+        List<CarDistanceRecord> records =
+            new List<CarDistanceRecord>();
+
+        foreach (CarDistanceData car in Data.carDistances)
+        {
+            records.Add(new CarDistanceRecord
+            {
+                StatisticsId = 1,
+                CarName = car.carName,
+                Distance = car.distance
+            });
+        }
+
+        repository.SaveCarDistances(1, records);
     }
 }
