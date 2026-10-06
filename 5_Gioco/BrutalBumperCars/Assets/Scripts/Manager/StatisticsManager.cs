@@ -45,7 +45,6 @@ public class StatisticsManager : MonoBehaviour
         Data = ConvertToData(record);
 
         LoadCarDistances();
-        Debug.Log("caricato");
     }
 
     public void Save()
@@ -55,7 +54,6 @@ public class StatisticsManager : MonoBehaviour
         repository.SaveStatistics(record);
 
         SaveCarDistances();
-        Debug.Log("salvato");
     }
 
     private StatisticsData CreateDefaultStatistics()

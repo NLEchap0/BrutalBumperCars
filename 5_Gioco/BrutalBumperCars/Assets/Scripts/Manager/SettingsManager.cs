@@ -1,3 +1,4 @@
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class SettingsManager : MonoBehaviour
@@ -6,7 +7,8 @@ public class SettingsManager : MonoBehaviour
     
     public SettingsData Data { get; private set; }
 
-    private JsonDataService dataService;
+    private DatabaseManager database;
+    private SettingsRepository repository;
 
     private void Awake()
     {
@@ -21,16 +23,87 @@ public class SettingsManager : MonoBehaviour
         // Mantiene il manager tra le scene
         DontDestroyOnLoad(gameObject);
 
-        dataService = new JsonDataService();
+        database = new DatabaseManager();
+        repository = new SettingsRepository(database);
 
-        Data = dataService.LoadSettings();
+        LoadSettings();
 
         ApplySettings();
     }
 
+    private void LoadSettings()
+    {
+        SettingsRecord record = repository.LoadSettings();
+
+        if (record == null)
+        {
+            Data = CreateDefaultSettings();
+
+            Save();
+            return;
+        }
+
+        Data = ConvertToData(record);
+
+        Debug.Log("caricato");
+    }
+
     public void Save()
     {
-        dataService.SaveSettings(Data);
+        SettingsRecord record = ConverToRecord(Data);
+
+        repository.SaveSettings(record);
+
+        Debug.Log("salvato");
+    }
+
+    private SettingsData CreateDefaultSettings()
+    {
+        return new SettingsData
+        {
+            fullscreen = true,
+            resolution = 2,
+
+            effect = 100f,
+            master = 100f,
+            music = 100f,
+
+            sensitivity = 0.5f,
+        };
+    }
+
+    private SettingsRecord ConverToRecord (
+        SettingsData data)
+    {
+        return new SettingsRecord
+        {
+            Id = 1,
+
+            Fullscreen = data.fullscreen,
+            Resolution = data.resolution,
+
+            Effect = data.effect,
+            Master = data.master,
+            Music = data.music,
+
+            Sensitivity = data.sensitivity
+        };
+    }
+
+    private SettingsData ConvertToData(
+        SettingsRecord record)
+    {
+        return new SettingsData
+        {
+            fullscreen = record.Fullscreen,
+            resolution = record.Resolution,
+
+            effect = record.Effect,
+            master = record.Master,
+            music = record.Music,
+
+            sensitivity = record.Sensitivity
+        };
     }
 
     private void ApplySettings()

@@ -25,5 +25,6 @@ public class DatabaseManager
     {
         connection.CreateTable<StatisticsRecord>();
         connection.CreateTable<CarDistanceRecord>();
+        connection.CreateTable<SettingsRecord>();
     }
 }
