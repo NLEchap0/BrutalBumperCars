@@ -7,20 +7,41 @@ public class MenuNavigationManager : MonoBehaviour
 
     [Header("Impostazioni")]
     [SerializeField] private float durataAnimazione = 0.35f;
+    [SerializeField] private Canvas canvasPrincipale;
+
+    private bool isAnimating = false;
+    public bool IsAnimating => isAnimating;
 
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        if (canvasPrincipale == null)
+            canvasPrincipale = GetComponentInParent<Canvas>();
     }
 
-    /// <summary>
-    /// Avanza: la pagina attiva scivola a destra (esce), la nuova entra da sinistra verso X=0.
-    /// Entrambe si muovono dello stesso offset (distanza) bordo contro bordo.
-    /// </summary>
+    private float GetLarghezzaCanvas()
+    {
+        if (canvasPrincipale != null)
+        {
+            return canvasPrincipale.GetComponent<RectTransform>().rect.width;
+        }
+        return Screen.width;
+    }
+
     public void TransizioneAvanti(GameObject paginaDaChiudere, GameObject paginaDaAprire, GameObject elementoExtra = null)
     {
-        float distanza = Screen.width;
+        if (isAnimating) return;
+
+        float distanza = GetLarghezzaCanvas();
 
         // 1. Pagina che entra: parte da -distanza e arriva a 0
         if (paginaDaAprire != null)
@@ -28,81 +49,79 @@ public class MenuNavigationManager : MonoBehaviour
             paginaDaAprire.SetActive(true);
             RectTransform rectApri = paginaDaAprire.GetComponent<RectTransform>();
             rectApri.anchoredPosition = new Vector2(-distanza, rectApri.anchoredPosition.y);
-            StartCoroutine(Muovi(rectApri, new Vector2(0f, rectApri.anchoredPosition.y), durataAnimazione, false));
+            StartCoroutine(Muovi(rectApri, new Vector2(0f, rectApri.anchoredPosition.y), durataAnimazione, false, true));
         }
 
-        // 2. Pagina che esce: parte da dove si trova (0) e va a +distanza
+        // 2. Pagina che esce: parte dal centro (0) e va a +distanza
         if (paginaDaChiudere != null)
         {
             RectTransform rectChiudi = paginaDaChiudere.GetComponent<RectTransform>();
-            Vector2 target = new Vector2(rectChiudi.anchoredPosition.x + distanza, rectChiudi.anchoredPosition.y);
-            StartCoroutine(Muovi(rectChiudi, target, durataAnimazione, true));
+            Vector2 target = new Vector2(distanza, rectChiudi.anchoredPosition.y);
+            StartCoroutine(Muovi(rectChiudi, target, durataAnimazione, true, false));
         }
 
-        // 3. BG: entra assieme alla nuova pagina da -distanza a 0
+        // 3. Elemento Extra / BG
         if (elementoExtra != null)
         {
             elementoExtra.SetActive(true);
             RectTransform rectExtra = elementoExtra.GetComponent<RectTransform>();
             rectExtra.anchoredPosition = new Vector2(-distanza, rectExtra.anchoredPosition.y);
-            StartCoroutine(Muovi(rectExtra, new Vector2(0f, rectExtra.anchoredPosition.y), durataAnimazione, false));
+            StartCoroutine(Muovi(rectExtra, new Vector2(0f, rectExtra.anchoredPosition.y), durataAnimazione, false, false));
         }
     }
 
-    /// <summary>
-    /// Torna indietro: la pagina attiva scivola a sinistra, la vecchia rientra da destra verso X=0.
-    /// </summary>
     public void TransizioneIndietro(GameObject paginaDaChiudere, GameObject paginaDaAprire, GameObject elementoExtra = null)
     {
-        float distanza = Screen.width;
+        if (isAnimating) return;
+
+        float distanza = GetLarghezzaCanvas();
 
         // 1. Pagina che esce: va a -distanza e poi si spegne
         if (paginaDaChiudere != null)
         {
             RectTransform rectChiudi = paginaDaChiudere.GetComponent<RectTransform>();
-            Vector2 target = new Vector2(rectChiudi.anchoredPosition.x - distanza, rectChiudi.anchoredPosition.y);
-            StartCoroutine(Muovi(rectChiudi, target, durataAnimazione, true));
+            Vector2 target = new Vector2(-distanza, rectChiudi.anchoredPosition.y);
+            StartCoroutine(Muovi(rectChiudi, target, durataAnimazione, true, false));
         }
 
-        // 2. BG: esce a sinistra assieme alla pagina che si chiude
+        // 2. Elemento Extra / BG
         if (elementoExtra != null)
         {
             RectTransform rectExtra = elementoExtra.GetComponent<RectTransform>();
-            Vector2 target = new Vector2(rectExtra.anchoredPosition.x - distanza, rectExtra.anchoredPosition.y);
-            StartCoroutine(Muovi(rectExtra, target, durataAnimazione, true));
+            Vector2 target = new Vector2(-distanza, rectExtra.anchoredPosition.y);
+            StartCoroutine(Muovi(rectExtra, target, durataAnimazione, true, false));
         }
 
-        // 3. Pagina che rientra: parte da +distanza e torna al centro (0)
+        // 3. Pagina che rientra: parte da +distanza e va a 0
         if (paginaDaAprire != null)
         {
             paginaDaAprire.SetActive(true);
             RectTransform rectApri = paginaDaAprire.GetComponent<RectTransform>();
             rectApri.anchoredPosition = new Vector2(distanza, rectApri.anchoredPosition.y);
-            StartCoroutine(Muovi(rectApri, new Vector2(0f, rectApri.anchoredPosition.y), durataAnimazione, false));
+            StartCoroutine(Muovi(rectApri, new Vector2(0f, rectApri.anchoredPosition.y), durataAnimazione, false, true));
         }
     }
 
-    /// <summary>
-    /// Uscita del solo menu per avvio partita
-    /// </summary>
     public void FaiUscireASinistra(GameObject pagina)
     {
-        if (pagina != null)
-        {
-            RectTransform rect = pagina.GetComponent<RectTransform>();
-            Vector2 target = new Vector2(rect.anchoredPosition.x - Screen.width, rect.anchoredPosition.y);
-            StartCoroutine(Muovi(rect, target, durataAnimazione, true));
-        }
+        if (pagina == null || isAnimating) return;
+
+        float distanza = GetLarghezzaCanvas();
+        RectTransform rect = pagina.GetComponent<RectTransform>();
+        Vector2 target = new Vector2(-distanza, rect.anchoredPosition.y);
+        StartCoroutine(Muovi(rect, target, durataAnimazione, true, true));
     }
 
-    private IEnumerator Muovi(RectTransform rect, Vector2 destinazione, float durata, bool disattivaAllaFine)
+    private IEnumerator Muovi(RectTransform rect, Vector2 destinazione, float durata, bool disattivaAllaFine, bool gestisceLock)
     {
+        if (gestisceLock) isAnimating = true;
+
         Vector2 start = rect.anchoredPosition;
         float t = 0f;
 
         while (t < durata)
         {
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime; // unscaledDeltaTime permette animazioni anche se Time.timeScale == 0
             float smooth = Mathf.SmoothStep(0f, 1f, t / durata);
             rect.anchoredPosition = Vector2.Lerp(start, destinazione, smooth);
             yield return null;
@@ -114,5 +133,7 @@ public class MenuNavigationManager : MonoBehaviour
         {
             rect.gameObject.SetActive(false);
         }
+
+        if (gestisceLock) isAnimating = false;
     }
 }
