@@ -10,7 +10,9 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
         ChiudiGioco,
         ImpostazioniToMain,
         ImpostazioniToComandi,
-        ComandiToImpostazioni
+        ComandiToImpostazioni,
+        ApriStatisticheGarage,
+        ChiudiStatisticheGarage
     }
 
     [Header("Configurazione Oggetto")]
@@ -21,6 +23,10 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject pannelloMenu;
     [SerializeField] private GameObject pannelloImpostazioni;
     [SerializeField] private GameObject pannelloComandi;
+
+    [Header("UI Garage & Statistiche")]
+    [SerializeField] private GameObject pannelloGarage;
+    [SerializeField] private GameObject pannelloStatistiche;
 
     [Header("Avvio Partita")]
     [SerializeField] private Animator cameraAnimator;
@@ -49,7 +55,24 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
                 {
                     cameraAnimator.Play("MainCameraGameSelect");
                 }
-                MenuNavigationManager.Instance.FaiUscireASinistra(pannelloMenu);
+
+                MenuNavigationManager.Instance.TransizioneAvvioPartita(
+                    pannelloMenu,
+                    pannelloGarage,
+                    pannelloStatistiche,
+                    bg,
+                    cameraAnimator
+                );
+                break;
+
+            case ActionType.ApriStatisticheGarage:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Apertura statistiche a schermo intero!");
+                MenuNavigationManager.Instance.ApriStatisticheDettagliate(pannelloStatistiche, bg);
+                break;
+
+            case ActionType.ChiudiStatisticheGarage:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Ritorno al garage dalle statistiche!");
+                MenuNavigationManager.Instance.ChiudiStatisticheDettagliate(pannelloStatistiche, bg);
                 break;
 
             case ActionType.ApriImpostazioni:
@@ -68,7 +91,6 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
 
             case ActionType.ImpostazioniToComandi:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Apertura comandi dalle impostazioni!");
-                // Sposta le impostazioni e porta dentro i comandi, mantenendo il BG attivo
                 MenuNavigationManager.Instance.TransizioneAvanti(pannelloImpostazioni, pannelloComandi);
                 break;
 
