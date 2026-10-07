@@ -22,4 +22,26 @@ public class SettingsRepository
             .FirstOrDefault();
     }
 
+    public List<CommandBindingRecord> LoadCommandBindings(int settingsId)
+    {
+        return database.Connection
+            .Table<CommandBindingRecord>()
+            .Where(binding => binding.SettingsId == settingsId)
+            .ToList();
+    }
+
+    public void SaveCommandBindings(
+        int settingsId,
+        List<CommandBindingRecord> bindings)
+    {
+        database.Connection.Execute(
+            "DELETE FROM CommandBindingRecord WHERE SettingsId = ?",
+            settingsId
+        );
+
+        foreach (CommandBindingRecord binding in bindings)
+        {
+            database.Connection.Insert(binding);
+        }
+    }
 }
