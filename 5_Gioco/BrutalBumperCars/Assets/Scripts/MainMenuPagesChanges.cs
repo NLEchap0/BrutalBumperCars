@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class TextClickHandler : MonoBehaviour, IPointerClickHandler
 {
@@ -11,12 +12,13 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
         ImpostazioniToMain,
         ImpostazioniToComandi,
         ComandiToImpostazioni,
+        ToggleStatisticheGarage,
         ApriStatisticheGarage,
         ChiudiStatisticheGarage
     }
 
     [Header("Configurazione Oggetto")]
-    [SerializeField] private ActionType azioneDaEseguire;
+    [SerializeField] private ActionType azioneDaEseguire = ActionType.ToggleStatisticheGarage;
 
     [Header("Riferimenti UI")]
     [SerializeField] private GameObject bg;
@@ -31,8 +33,26 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     [Header("Avvio Partita")]
     [SerializeField] private Animator cameraAnimator;
 
+    private void Start()
+    {
+        if (TryGetComponent<Graphic>(out var graphic))
+        {
+            if (!graphic.raycastTarget)
+            {
+                graphic.raycastTarget = true;
+            }
+        }
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
+        Debug.Log($"<color=yellow>[TextClickHandler] Click catturato su: {gameObject.name} | Azione: {azioneDaEseguire}</color>");
+        GestisciAzione(azioneDaEseguire);
+    }
+
+    public void EseguiAzioneDiretta()
+    {
+        Debug.Log($"[TextClickHandler] EseguiAzioneDiretta chiamata su: {gameObject.name}");
         GestisciAzione(azioneDaEseguire);
     }
 
@@ -40,6 +60,21 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     {
         switch (tipo)
         {
+            case ActionType.ToggleStatisticheGarage:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Toggle Statistiche Garage!");
+                MenuNavigationManager.Instance.ToggleStatisticheDettagliate(pannelloStatistiche, bg);
+                break;
+
+            case ActionType.ApriStatisticheGarage:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Apertura statistiche a schermo intero!");
+                MenuNavigationManager.Instance.ApriStatisticheDettagliate(pannelloStatistiche, bg);
+                break;
+
+            case ActionType.ChiudiStatisticheGarage:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Ritorno al garage dalle statistiche!");
+                MenuNavigationManager.Instance.ChiudiStatisticheDettagliate(pannelloStatistiche, bg);
+                break;
+
             case ActionType.ChiudiGioco:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Chiusura applicazione!");
 #if UNITY_EDITOR
@@ -63,16 +98,6 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
                     bg,
                     cameraAnimator
                 );
-                break;
-
-            case ActionType.ApriStatisticheGarage:
-                Debug.Log($"Azione eseguita da {gameObject.name}: Apertura statistiche a schermo intero!");
-                MenuNavigationManager.Instance.ApriStatisticheDettagliate(pannelloStatistiche, bg);
-                break;
-
-            case ActionType.ChiudiStatisticheGarage:
-                Debug.Log($"Azione eseguita da {gameObject.name}: Ritorno al garage dalle statistiche!");
-                MenuNavigationManager.Instance.ChiudiStatisticheDettagliate(pannelloStatistiche, bg);
                 break;
 
             case ActionType.ApriImpostazioni:
