@@ -43,6 +43,7 @@ public class DatabaseManager
         connection.CreateTable<CarDistanceRecord>();
         connection.CreateTable<SettingsRecord>();
         connection.CreateTable<InputBindingRecord>();
+        connection.CreateTable<CarRecord>();
     }
 
     public void Close()
