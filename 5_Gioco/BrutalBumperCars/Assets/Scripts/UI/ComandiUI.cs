@@ -36,9 +36,6 @@ public class ComandiUI : MonoBehaviour
         // Il pannello e' un Canvas annidato: senza GraphicRaycaster non riceve click/scroll.
         EnsureGraphicRaycaster();
 
-        // Applica gli eventuali tasti rimappati in precedenza.
-        InputBindingStorage.Load(inputActions);
-
         // Crea la parte grafica e poi una riga per ogni voce configurata.
         listView = new ComandiListView((RectTransform)transform, rowTemplate);
         listView.Build();
@@ -78,7 +75,7 @@ public class ComandiUI : MonoBehaviour
     private void RefreshRow(ComandoRowUI row, ComandoVoce voce, InputAction action, int bindingIndex)
     {
         row.Show(voce.etichetta, InputBindingLookup.Display(action, bindingIndex));
-        InputBindingStorage.Save(inputActions);
+        InputBindingManager.Instance.Save(inputActions);
     }
 
     /// <summary>Aggiunge il GraphicRaycaster se il pannello non ce l'ha.</summary>

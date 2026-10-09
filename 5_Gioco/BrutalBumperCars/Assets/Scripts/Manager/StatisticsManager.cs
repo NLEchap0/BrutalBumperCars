@@ -24,7 +24,7 @@ public class StatisticsManager : MonoBehaviour
         // Mantiene il manager tra le scene
         DontDestroyOnLoad(gameObject);
 
-        database = new DatabaseManager();
+        database = DatabaseManager.Instance;
         repository = new StatisticsRepository(database);
 
         LoadStatistics();
