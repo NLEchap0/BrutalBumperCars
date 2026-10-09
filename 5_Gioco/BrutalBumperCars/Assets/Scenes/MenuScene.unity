@@ -2957,7 +2957,7 @@ MonoBehaviour:
   pannelloImpostazioni: {fileID: 0}
   pannelloComandi: {fileID: 0}
   pannelloGarage: {fileID: 1278490705}
-  pannelloStatistiche: {fileID: 32123582}
+  pannelloStatistiche: {fileID: 0}
   cameraAnimator: {fileID: 1240586955}
 --- !u!1 &366741140
 GameObject:
@@ -10247,26 +10247,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1484631855}
   m_CullTransparentMesh: 1
---- !u!114 &1484631859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1484631855}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2251cc2432364414fa0e4d0ad4010e6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  azioneDaEseguire: 6
-  bg: {fileID: 1705041878}
-  pannelloMenu: {fileID: 0}
-  pannelloImpostazioni: {fileID: 0}
-  pannelloComandi: {fileID: 0}
-  pannelloGarage: {fileID: 1278490705}
-  pannelloStatistiche: {fileID: 32123582}
-  cameraAnimator: {fileID: 0}
 --- !u!1 &1500468374
 GameObject:
   m_ObjectHideFlags: 0
@@ -15663,6 +15643,7 @@ GameObject:
   - component: {fileID: 2136294040}
   - component: {fileID: 2136294039}
   - component: {fileID: 2136294041}
+  - component: {fileID: 2136294042}
   m_Layer: 0
   m_Name: MenuManager
   m_TagString: Untagged
@@ -15709,6 +15690,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71785d477559a174d8f19a06541f6dd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2136294042
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136294038}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19200d8ce4dd11945b000cbdb2ad22bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

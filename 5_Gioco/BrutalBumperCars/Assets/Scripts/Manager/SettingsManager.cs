@@ -23,15 +23,15 @@ public class SettingsManager : MonoBehaviour
         // Mantiene il manager tra le scene
         DontDestroyOnLoad(gameObject);
 
-        database = new DatabaseManager();
+        database = DatabaseManager.Instance;
         repository = new SettingsRepository(database);
 
-        LoadSettings();
+        Load();
 
         ApplySettings();
     }
 
-    private void LoadSettings()
+    private void Load()
     {
         SettingsRecord record = repository.LoadSettings();
 

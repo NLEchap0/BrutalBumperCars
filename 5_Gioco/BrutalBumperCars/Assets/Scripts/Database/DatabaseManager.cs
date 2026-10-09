@@ -1,17 +1,31 @@
+using System;
 using System.IO;
 using SQLite;
 using UnityEngine;
 
 public class DatabaseManager
 {
-    private readonly string databasePath;
+    private static DatabaseManager instance;
+
+    public static DatabaseManager Instance
+    {
+        get
+        {
+            if(instance == null)
+                instance = new DatabaseManager();
+
+            return instance;
+        }
+    }
+
     private readonly SQLiteConnection connection;
+    private bool closed;
 
     public SQLiteConnection Connection => connection;
 
     public DatabaseManager()
     {
-        databasePath = Path.Combine(
+        string databasePath = Path.Combine(
             Application.persistentDataPath,
             "brutal_bumper_cars.db"
         );
@@ -19,6 +33,8 @@ public class DatabaseManager
         connection = new SQLiteConnection(databasePath);
 
         InitializeDatabase();
+
+        Application.quitting += Close;
     }
 
     private void InitializeDatabase()
@@ -26,6 +42,18 @@ public class DatabaseManager
         connection.CreateTable<StatisticsRecord>();
         connection.CreateTable<CarDistanceRecord>();
         connection.CreateTable<SettingsRecord>();
-        connection.CreateTable<CommandBindingRecord>();
+        connection.CreateTable<InputBindingRecord>();
+    }
+
+    public void Close()
+    {
+        if(closed)
+            return;
+
+        connection.Close();
+        closed = true;
+
+        Application.quitting -= Close;
+
     }
 }
