@@ -7,6 +7,7 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     public enum ActionType
     {
         AvviaPartita,
+        GarageToMain,
         ApriImpostazioni,
         ChiudiGioco,
         ImpostazioniToMain,
@@ -30,7 +31,7 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject pannelloGarage;
     [SerializeField] private GameObject pannelloStatistiche;
 
-    [Header("Avvio Partita")]
+    [Header("Animazione Camera")]
     [SerializeField] private Animator cameraAnimator;
 
     private void Start()
@@ -60,6 +61,17 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
     {
         switch (tipo)
         {
+            case ActionType.GarageToMain:
+                Debug.Log($"Azione eseguita da {gameObject.name}: Ritorno al Menu Principale dal Garage!");
+                MenuNavigationManager.Instance.TransizioneRitornoAlMenu(
+                    pannelloMenu,
+                    pannelloGarage,
+                    pannelloStatistiche,
+                    bg,
+                    cameraAnimator
+                );
+                break;
+
             case ActionType.ToggleStatisticheGarage:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Toggle Statistiche Garage!");
                 MenuNavigationManager.Instance.ToggleStatisticheDettagliate(pannelloStatistiche, bg);
@@ -86,11 +98,6 @@ public class TextClickHandler : MonoBehaviour, IPointerClickHandler
 
             case ActionType.AvviaPartita:
                 Debug.Log($"Azione eseguita da {gameObject.name}: Avvio Partita!");
-                if (cameraAnimator != null)
-                {
-                    cameraAnimator.Play("MainCameraGameSelect");
-                }
-
                 MenuNavigationManager.Instance.TransizioneAvvioPartita(
                     pannelloMenu,
                     pannelloGarage,
