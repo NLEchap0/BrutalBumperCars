@@ -28,6 +28,12 @@ public class MenuNavigationManager : MonoBehaviour
     [Tooltip("Tempo di discesa/risalita tra Y nascosta e Y: 0")]
     [SerializeField] private float durataAnimazioneStatistiche = 0.45f;
 
+    [Header("Animazione Camera")]
+    [Tooltip("Nome dello stato dell'animazione di andata della telecamera")]
+    [SerializeField] private string nomeStatoCameraAndata = "MainCameraGameSelect";
+    [Tooltip("Nome dello stato dedicato di ritorno (se esiste nell'Animator)")]
+    [SerializeField] private string nomeStatoCameraRitorno = "MainCameraGameSelectReverse";
+
     private bool isAnimating = false;
     public bool IsAnimating => isAnimating;
 
@@ -98,33 +104,45 @@ public class MenuNavigationManager : MonoBehaviour
         return Screen.width;
     }
 
+    private float GetAltezzaCanvas()
+    {
+        if (canvasPrincipale != null)
+            return canvasPrincipale.GetComponent<RectTransform>().rect.height;
+
+        return Screen.height;
+    }
+
     public void TransizioneAvanti(GameObject paginaDaChiudere, GameObject paginaDaAprire, GameObject elementoExtra = null)
     {
         if (isAnimating) return;
 
         float distanza = GetLarghezzaCanvas();
 
+        if (elementoExtra != null)
+        {
+            elementoExtra.SetActive(true);
+            elementoExtra.transform.SetAsFirstSibling(); // Sfondo dietro ai menu
+            RectTransform rectExtra = elementoExtra.GetComponent<RectTransform>();
+            // Resetta sia X che Y (azzerando eventuali offset verticali del garage)
+            rectExtra.anchoredPosition = new Vector2(-distanza, 0f);
+            StartCoroutine(Muovi(rectExtra, Vector2.zero, durataTransizioneMenu, false, false));
+        }
+
         if (paginaDaAprire != null)
         {
             paginaDaAprire.SetActive(true);
+            paginaDaAprire.transform.SetAsLastSibling();
             RectTransform rectApri = paginaDaAprire.GetComponent<RectTransform>();
             rectApri.anchoredPosition = new Vector2(-distanza, rectApri.anchoredPosition.y);
-            StartCoroutine(Muovi(rectApri, new Vector2(0f, rectApri.anchoredPosition.y), durataTransizioneMenu, false, true));
+            Vector2 targetApri = new Vector2(0f, rectApri.anchoredPosition.y);
+            StartCoroutine(Muovi(rectApri, targetApri, durataTransizioneMenu, false, true));
         }
 
         if (paginaDaChiudere != null)
         {
             RectTransform rectChiudi = paginaDaChiudere.GetComponent<RectTransform>();
-            Vector2 target = new Vector2(distanza, rectChiudi.anchoredPosition.y);
-            StartCoroutine(Muovi(rectChiudi, target, durataTransizioneMenu, true, false));
-        }
-
-        if (elementoExtra != null)
-        {
-            elementoExtra.SetActive(true);
-            RectTransform rectExtra = elementoExtra.GetComponent<RectTransform>();
-            rectExtra.anchoredPosition = new Vector2(-distanza, rectExtra.anchoredPosition.y);
-            StartCoroutine(Muovi(rectExtra, new Vector2(0f, rectExtra.anchoredPosition.y), durataTransizioneMenu, false, false));
+            Vector2 targetChiudi = new Vector2(distanza, rectChiudi.anchoredPosition.y);
+            StartCoroutine(Muovi(rectChiudi, targetChiudi, durataTransizioneMenu, true, false));
         }
     }
 
@@ -137,24 +155,36 @@ public class MenuNavigationManager : MonoBehaviour
         if (paginaDaChiudere != null)
         {
             RectTransform rectChiudi = paginaDaChiudere.GetComponent<RectTransform>();
-            Vector2 target = new Vector2(-distanza, rectChiudi.anchoredPosition.y);
-            StartCoroutine(Muovi(rectChiudi, target, durataTransizioneMenu, true, false));
+            Vector2 targetChiudi = new Vector2(-distanza, rectChiudi.anchoredPosition.y);
+            StartCoroutine(Muovi(rectChiudi, targetChiudi, durataTransizioneMenu, true, false));
         }
 
         if (elementoExtra != null)
         {
             RectTransform rectExtra = elementoExtra.GetComponent<RectTransform>();
-            Vector2 target = new Vector2(-distanza, rectExtra.anchoredPosition.y);
-            StartCoroutine(Muovi(rectExtra, target, durataTransizioneMenu, true, false));
+            Vector2 targetExtra = new Vector2(-distanza, 0f);
+            StartCoroutine(Muovi(rectExtra, targetExtra, durataTransizioneMenu, true, false));
         }
 
         if (paginaDaAprire != null)
         {
             paginaDaAprire.SetActive(true);
+            paginaDaAprire.transform.SetAsLastSibling();
             RectTransform rectApri = paginaDaAprire.GetComponent<RectTransform>();
             rectApri.anchoredPosition = new Vector2(distanza, rectApri.anchoredPosition.y);
-            StartCoroutine(Muovi(rectApri, new Vector2(0f, rectApri.anchoredPosition.y), durataTransizioneMenu, false, true));
+            Vector2 targetApri = new Vector2(0f, rectApri.anchoredPosition.y);
+            StartCoroutine(Muovi(rectApri, targetApri, durataTransizioneMenu, false, true));
         }
+    }
+
+    public void FaiUscireASinistra(GameObject pagina)
+    {
+        if (pagina == null || isAnimating) return;
+
+        float distanza = GetLarghezzaCanvas();
+        RectTransform rect = pagina.GetComponent<RectTransform>();
+        Vector2 targetUscita = new Vector2(-distanza, rect.anchoredPosition.y);
+        StartCoroutine(Muovi(rect, targetUscita, durataTransizioneMenu, true, true));
     }
 
     public void TransizioneAvvioPartita(GameObject menu, GameObject garage, GameObject stats, GameObject background, Animator cameraAnimator = null)
@@ -169,8 +199,10 @@ public class MenuNavigationManager : MonoBehaviour
     {
         isAnimating = true;
         float largh = GetLarghezzaCanvas();
+        float alt = GetAltezzaCanvas();
+        float startY = yPosizioneNascostaStatistiche + alt;
 
-        // 1. Menu principale esce a sinistra
+        // 1. Menu principale e BG escono a sinistra
         if (menu != null)
         {
             RectTransform rectMenu = menu.GetComponent<RectTransform>();
@@ -178,7 +210,6 @@ public class MenuNavigationManager : MonoBehaviour
             StartCoroutine(Muovi(rectMenu, targetMenu, durataUscitaMenu, true, false));
         }
 
-        // Il BG esce a sinistra se visibile col menu principale
         if (background != null)
         {
             if (background.TryGetComponent<Image>(out var imgBg))
@@ -194,11 +225,14 @@ public class MenuNavigationManager : MonoBehaviour
             }
         }
 
-        // 2. Attesa animazione telecamera
+        // 2. Telecamera in andata verso il Garage
         float tempoDiAttesa = ritardoEntrataGarage;
 
         if (cameraAnimator != null)
         {
+            cameraAnimator.speed = 1f;
+            cameraAnimator.Play(nomeStatoCameraAndata, 0, 0f);
+
             yield return null;
 
             if (cameraAnimator.IsInTransition(0))
@@ -230,14 +264,14 @@ public class MenuNavigationManager : MonoBehaviour
             StartCoroutine(Muovi(rectGarage, new Vector2(0f, rectGarage.anchoredPosition.y), durataEntrataGarage, false, false));
         }
 
-        // 4. Ripristino X a 0 e posizionamento di BG e Statistiche in alto fuori schermo
+        // 4. Discesa di Statistiche e BG dall'alto verso la posizione di riposo Y
         if (background != null)
         {
             background.SetActive(true);
             background.transform.SetAsLastSibling();
             RectTransform rectBg = background.GetComponent<RectTransform>();
-            // Posizionamento esplicito su X: 0f e Y nascosta
-            rectBg.anchoredPosition = new Vector2(0f, yPosizioneNascostaStatistiche);
+            rectBg.anchoredPosition = new Vector2(0f, startY);
+            StartCoroutine(Muovi(rectBg, new Vector2(0f, yPosizioneNascostaStatistiche), durataEntrataGarage, false, false));
         }
 
         if (stats != null)
@@ -245,10 +279,118 @@ public class MenuNavigationManager : MonoBehaviour
             stats.SetActive(true);
             stats.transform.SetAsLastSibling();
             RectTransform rectStats = stats.GetComponent<RectTransform>();
-            rectStats.anchoredPosition = new Vector2(rectStats.anchoredPosition.x, yPosizioneNascostaStatistiche);
+            rectStats.anchoredPosition = new Vector2(rectStats.anchoredPosition.x, startY);
+            StartCoroutine(Muovi(rectStats, new Vector2(rectStats.anchoredPosition.x, yPosizioneNascostaStatistiche), durataEntrataGarage, false, false));
         }
 
         yield return new WaitForSecondsRealtime(durataEntrataGarage);
+        isAnimating = false;
+    }
+
+    public void TransizioneRitornoAlMenu(GameObject menu, GameObject garage, GameObject stats, GameObject background, Animator cameraAnimator = null)
+    {
+        if (isAnimating) return;
+        StopAllCoroutines();
+        StartCoroutine(SequenzaRitornoAlMenu(menu, garage, stats, background, cameraAnimator));
+    }
+
+    private IEnumerator SequenzaRitornoAlMenu(GameObject menu, GameObject garage, GameObject stats, GameObject background, Animator cameraAnimator)
+    {
+        isAnimating = true;
+        float largh = GetLarghezzaCanvas();
+        float alt = GetAltezzaCanvas();
+        float targetYSalita = yPosizioneNascostaStatistiche + alt;
+
+        // FASE 1: Se le statistiche erano abbassate a Y: 0, le facciamo risalire prima
+        if (statisticheAperte)
+        {
+            statisticheAperte = false;
+            yield return StartCoroutine(SequenzaStatistiche(stats, background, yPosizioneNascostaStatistiche));
+        }
+
+        // FASE 2: USCITA GARAGE, STATISTICHE E BG
+        if (garage != null)
+        {
+            RectTransform rectGarage = garage.GetComponent<RectTransform>();
+            Vector2 targetGarage = new Vector2(-largh, rectGarage.anchoredPosition.y);
+            StartCoroutine(Muovi(rectGarage, targetGarage, durataEntrataGarage, true, false));
+        }
+
+        if (stats != null)
+        {
+            RectTransform rectStats = stats.GetComponent<RectTransform>();
+            Vector2 targetStats = new Vector2(rectStats.anchoredPosition.x, targetYSalita);
+            StartCoroutine(Muovi(rectStats, targetStats, durataEntrataGarage, true, false));
+        }
+
+        if (background != null)
+        {
+            RectTransform rectBg = background.GetComponent<RectTransform>();
+            Vector2 targetBg = new Vector2(0f, targetYSalita);
+            StartCoroutine(Muovi(rectBg, targetBg, durataEntrataGarage, true, false));
+        }
+
+        yield return new WaitForSecondsRealtime(durataEntrataGarage);
+
+        if (stats != null) stats.SetActive(false);
+        if (background != null) background.SetActive(false);
+
+        // FASE 3: REVERSE TELECAMERA
+        if (cameraAnimator != null)
+        {
+            int hashRitorno = Animator.StringToHash(nomeStatoCameraRitorno);
+
+            if (!string.IsNullOrEmpty(nomeStatoCameraRitorno) && cameraAnimator.HasState(0, hashRitorno))
+            {
+                cameraAnimator.speed = 1f;
+                cameraAnimator.Play(nomeStatoCameraRitorno, 0, 0f);
+                yield return null;
+
+                float tempoClip = ritardoEntrataGarage;
+                AnimatorStateInfo st = cameraAnimator.GetCurrentAnimatorStateInfo(0);
+                if (st.length > 0) tempoClip = st.length;
+                yield return new WaitForSecondsRealtime(tempoClip);
+            }
+            else
+            {
+                float durataCamera = ritardoEntrataGarage;
+                AnimatorStateInfo st = cameraAnimator.GetCurrentAnimatorStateInfo(0);
+                if (st.length > 0) durataCamera = st.length;
+
+                float tempoPassato = 0f;
+                while (tempoPassato < durataCamera)
+                {
+                    tempoPassato += Time.unscaledDeltaTime;
+                    float progresso = Mathf.Clamp01(tempoPassato / durataCamera);
+                    float normalizedTimeReverse = 1f - progresso;
+
+                    cameraAnimator.Play(nomeStatoCameraAndata, 0, normalizedTimeReverse);
+                    cameraAnimator.Update(0f);
+                    yield return null;
+                }
+
+                cameraAnimator.Play(nomeStatoCameraAndata, 0, 0f);
+                cameraAnimator.Update(0f);
+            }
+
+            cameraAnimator.speed = 0f;
+        }
+        else
+        {
+            yield return new WaitForSecondsRealtime(ritardoEntrataGarage);
+        }
+
+        // FASE 4: RIENTRO DEL MENU PRINCIPALE
+        if (menu != null)
+        {
+            menu.SetActive(true);
+            menu.transform.SetAsLastSibling();
+            RectTransform rectMenu = menu.GetComponent<RectTransform>();
+            rectMenu.anchoredPosition = new Vector2(-largh, rectMenu.anchoredPosition.y);
+            StartCoroutine(Muovi(rectMenu, new Vector2(0f, rectMenu.anchoredPosition.y), durataUscitaMenu, false, false));
+        }
+
+        yield return new WaitForSecondsRealtime(durataUscitaMenu);
         isAnimating = false;
     }
 
@@ -291,7 +433,6 @@ public class MenuNavigationManager : MonoBehaviour
             background.SetActive(true);
             background.transform.SetAsLastSibling();
             RectTransform rectBg = background.GetComponent<RectTransform>();
-            // Garantisce sempre X: 0f durante l'apertura e la chiusura
             Vector2 targetPosBg = new Vector2(0f, targetY);
             StartCoroutine(Muovi(rectBg, targetPosBg, durataAnimazioneStatistiche, false, false));
         }
