@@ -25,6 +25,10 @@ public class CameraLookController : MonoBehaviour
 
     private bool lookEnabled;
 
+    // Valori della sensibilità già calcolati.
+    private float cachedSensitivity = -1f;
+    private float sensitivityMultiplier = 1f;
+
 
     private void Awake()
     {
@@ -77,11 +81,13 @@ public class CameraLookController : MonoBehaviour
         Vector2 mouseDelta =
             lookAction.action.ReadValue<Vector2>();
 
+        float rotationSpeed = degreesPerMouseUnit * GetSensitivityMultiplier();
+
         // Rotazione orizzontale.
-        yaw += mouseDelta.x * degreesPerMouseUnit;
+        yaw += mouseDelta.x * rotationSpeed;
 
         // Rotazione verticale.
-        pitch -= mouseDelta.y * degreesPerMouseUnit;
+        pitch -= mouseDelta.y * rotationSpeed;
 
         // Limita la rotazione verticale.
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
@@ -92,6 +98,32 @@ public class CameraLookController : MonoBehaviour
             Quaternion.Euler(pitch, yaw, 0f);
     }
 
+    private float GetSensitivityMultiplier()
+    {
+        // Valore predefinito se il manager non è disponibile.
+        float settingValue = 0.5f;
+
+        if (SettingsManager.Instance != null)
+        {
+            settingValue = Mathf.Clamp01(
+                SettingsManager.Instance.Data.sensitivity
+            );
+        }
+
+        // Ricalcola il moltiplicatore solo quando cambia il valore.
+        if (!Mathf.Approximately(
+            settingValue, cachedSensitivity))
+        {
+            cachedSensitivity = settingValue;
+
+            sensitivityMultiplier = Mathf.Pow(
+                2f,
+                (settingValue - 0.5f) * 2f
+            );
+        }
+
+        return sensitivityMultiplier;
+    }
 
     public void SetLookEnabled(bool isEnabled)
     {

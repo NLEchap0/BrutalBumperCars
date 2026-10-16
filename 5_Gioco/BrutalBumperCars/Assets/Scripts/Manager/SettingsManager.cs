@@ -148,7 +148,6 @@ public class SettingsManager : MonoBehaviour
 
     public void OnSensitivityChange(float value)
     {
-        Data.sensitivity = value;
-        // Applicazione effettiva (necessario avere la scena di gioco)
+        Data.sensitivity = Mathf.Clamp01(value);
     }
 }
