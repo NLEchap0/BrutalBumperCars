@@ -104,7 +104,6 @@ public class CameraLookController : MonoBehaviour
                 SettingsManager.Instance.Data.sensitivity
             );
         }
-
         // Ricalcola il moltiplicatore solo quando cambia il valore.
         if (!Mathf.Approximately(
             settingValue, cachedSensitivity))
@@ -116,7 +115,6 @@ public class CameraLookController : MonoBehaviour
                 (settingValue - 0.5f) * 2f
             );
         }
-
         return sensitivityMultiplier;
     }
 
