@@ -88,11 +88,6 @@ public class MenuNavigationManager : MonoBehaviour
 
             List<RaycastResult> results = new List<RaycastResult>();
             EventSystem.current.RaycastAll(pointerData, results);
-
-            if (results.Count > 0)
-            {
-                Debug.Log($"<color=cyan>[DEBUG RAYCAST] Cliccato su: <b>{results[0].gameObject.name}</b></color>");
-            }
         }
     }
 

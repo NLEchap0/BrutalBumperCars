@@ -29,7 +29,6 @@ public class ComandiUI : MonoBehaviour
 
         if (inputActions == null || rowTemplate == null)
         {
-            Debug.LogWarning("ComandiUI: inputActions o rowTemplate mancanti.", this);
             return;
         }
 

@@ -25,7 +25,7 @@ public class CameraLookController : MonoBehaviour
 
     private bool lookEnabled;
 
-    // Valori della sensibilità già calcolati.
+    // Valori della sensibilitï¿½ giï¿½ calcolati.
     private float cachedSensitivity = -1f;
     private float sensitivityMultiplier = 1f;
 
@@ -42,11 +42,6 @@ public class CameraLookController : MonoBehaviour
         // Verifica che sia stata assegnata un'azione.
         if (lookAction == null || lookAction.action == null)
         {
-            Debug.LogError(
-                "CameraLookController: assegna l'azione Look nell'Inspector.",
-                this
-            );
-
             enabled = false;
             return;
         }
@@ -100,7 +95,7 @@ public class CameraLookController : MonoBehaviour
 
     private float GetSensitivityMultiplier()
     {
-        // Valore predefinito se il manager non è disponibile.
+        // Valore predefinito se il manager non ï¿½ disponibile.
         float settingValue = 0.5f;
 
         if (SettingsManager.Instance != null)

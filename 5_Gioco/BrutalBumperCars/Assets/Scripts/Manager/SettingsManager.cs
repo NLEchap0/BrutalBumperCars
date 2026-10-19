@@ -44,8 +44,6 @@ public class SettingsManager : MonoBehaviour
         }
 
         Data = ConvertToData(record);
-
-        Debug.Log("caricato");
     }
 
     public void Save()
@@ -53,8 +51,6 @@ public class SettingsManager : MonoBehaviour
         SettingsRecord record = ConverToRecord(Data);
 
         repository.SaveSettings(record);
-
-        Debug.Log("salvato");
     }
 
     private SettingsData CreateDefaultSettings()
@@ -112,7 +108,7 @@ public class SettingsManager : MonoBehaviour
 
         QualitySettings.SetQualityLevel(Data.resolution);
 
-        // Ricordare implementazione per audio e sensibilità
+        // Ricordare implementazione per audio e sensibilitï¿½
     }
 
     public void OnFullScreenChange(bool value)

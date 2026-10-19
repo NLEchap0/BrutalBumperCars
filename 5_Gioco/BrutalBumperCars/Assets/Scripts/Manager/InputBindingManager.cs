@@ -29,9 +29,6 @@ public class InputBindingManager : MonoBehaviour
 
         if (inputActions == null)
         {
-            Debug.LogError(
-                "InputBindingManager: InputActionAsset non assegnato."
-            );
             return;
         }
 
@@ -45,9 +42,6 @@ public class InputBindingManager : MonoBehaviour
     {
         if (actions == null)
         {
-            Debug.LogWarning(
-                "InputBindingManager: InputActionAsset mancante."
-            );
             return;
         }
 
@@ -64,9 +58,6 @@ public class InputBindingManager : MonoBehaviour
     {
         if (actions == null)
         {
-            Debug.LogWarning(
-                "InputBindingManager: InputActionAsset mancante."
-            );
             return;
         }
 

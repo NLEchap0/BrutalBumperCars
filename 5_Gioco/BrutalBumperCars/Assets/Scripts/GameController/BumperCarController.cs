@@ -93,6 +93,16 @@ public class BumperCarController : MonoBehaviour
     [SerializeField]
     private bool freezeTilt = true;
 
+    [Header("Terreno")]
+    // Allinea l'auto alla normale del terreno: su una rampa l'auto si inclina
+    // seguendo il piano invece di restare orizzontale.
+    [SerializeField]
+    private bool alignToGround = true;
+
+    // Rapidità con cui l'auto raggiunge l'inclinazione del terreno (1/s).
+    [SerializeField, Min(0.1f)]
+    private float groundAlignmentSpeed = 10f;
+
     [Header("Fisica")]
     // Applica ai collider dell'auto un materiale senza attrito: è il motore a muovere l'auto,
     // non l'attrito col terreno (che la frena e la fa girare di lato).
@@ -113,6 +123,7 @@ public class BumperCarController : MonoBehaviour
 
     private float smoothedSteer;
     private float lastGroundedTime = float.NegativeInfinity;
+    private Vector3 groundNormal = Vector3.up;
 
     private const float InputDeadzone = 0.05f;
     private const float StopThreshold = 0.15f;
@@ -170,7 +181,6 @@ public class BumperCarController : MonoBehaviour
 
         if (move == null)
         {
-            Debug.LogError("BumperCarController: azione Move non trovata.", this);
             enabled = false;
             return;
         }
@@ -232,19 +242,50 @@ public class BumperCarController : MonoBehaviour
         // Una sola scrittura della velocità per evitare che i vari passaggi si sovrascrivano.
         body.linearVelocity = velocity;
 
+        if (alignToGround && grounded)
+            AlignToGround();
+
         ApplyDownforce(forwardSpeed);
     }
 
     private void CheckGround(Collision collision)
     {
+        Vector3 accumulatedNormal = Vector3.zero;
+        bool foundGround = false;
+
         for (int i = 0; i < collision.contactCount; i++)
         {
-            if (collision.GetContact(i).normal.y >= GroundNormalMinY)
+            Vector3 normal = collision.GetContact(i).normal;
+            if (normal.y >= GroundNormalMinY)
             {
-                lastGroundedTime = Time.fixedTime;
-                return;
+                accumulatedNormal += normal;
+                foundGround = true;
             }
         }
+
+        if (foundGround)
+        {
+            groundNormal = accumulatedNormal.normalized;
+            lastGroundedTime = Time.fixedTime;
+        }
+    }
+
+    // Inclina l'auto sulla normale del terreno mantenendo la direzione di marcia (yaw).
+    private void AlignToGround()
+    {
+        Vector3 up = groundNormal;
+        Vector3 forward = Vector3.ProjectOnPlane(transform.forward, up);
+
+        if (forward.sqrMagnitude < 0.0001f)
+            forward = Vector3.ProjectOnPlane(transform.right, up);
+
+        if (forward.sqrMagnitude < 0.0001f)
+            return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(forward.normalized, up);
+        float t = 1f - Mathf.Exp(-groundAlignmentSpeed * Time.fixedDeltaTime);
+
+        body.MoveRotation(Quaternion.Slerp(body.rotation, targetRotation, t));
     }
 
     private void ApplyCarMaterial()
@@ -274,6 +315,8 @@ public class BumperCarController : MonoBehaviour
 
         smoothedSteer = 0f;
         IsDrifting = false;
+        groundNormal = Vector3.up;
+        lastGroundedTime = float.NegativeInfinity;
     }
 
     private void ApplyThrottle(ref Vector3 velocity, float throttle, float currentForwardSpeed)
