@@ -131,19 +131,16 @@ public class SettingsManager : MonoBehaviour
     public void OnMasterChange(float value)
     {
         Data.master = value;
-        //inserire codice per modifica effettiva
     }
 
     public void OnMusicChange(float value)
     {
         Data.music = value;
-        // Applicazione effettiva tramite AudioMixer
     }
 
     public void OnEffectChange(float value)
     {
         Data.effect = value;
-        // Applicazione effettiva tramite AudioMixer
     }
 
     public void OnSensitivityChange(float value)
