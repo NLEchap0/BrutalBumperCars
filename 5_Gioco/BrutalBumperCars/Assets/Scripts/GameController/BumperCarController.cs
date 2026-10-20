@@ -85,6 +85,16 @@ public class BumperCarController : MonoBehaviour
     [SerializeField, Min(0f)]
     private float downforce = 1.5f;
 
+    // Deportanza massima applicabile (m/s^2). Un limite evita che l'auto venga schiacciata
+    // sul terreno e rimbalzi in modo violento su ogni minimo dislivello.
+    [SerializeField, Min(0f)]
+    private float maxDownforceAcceleration = 20f;
+
+    // Velocità verticale massima verso l'alto tollerata su terreno piano (m/s).
+    // Assorbe i piccoli rimbalzi causati da dossi e fughe tra le mesh.
+    [SerializeField, Min(0f)]
+    private float maxGroundUpSpeed = 1.5f;
+
     // Altezza del baricentro (bassa per evitare ribaltamenti).
     [SerializeField]
     private float centerOfMassHeight = -0.3f;
@@ -102,6 +112,21 @@ public class BumperCarController : MonoBehaviour
     // Rapidità con cui l'auto raggiunge l'inclinazione del terreno (1/s).
     [SerializeField, Min(0.1f)]
     private float groundAlignmentSpeed = 10f;
+
+    // Angolo minimo (gradi) perché l'auto si inclini davvero: i micro-disallineamenti
+    // del terreno non devono ruotare l'auto ad ogni contatto.
+    [SerializeField, Min(0f)]
+    private float minTiltAngle = 3f;
+
+    // Rapidità con cui la normale del terreno viene mediata nel tempo (1/s).
+    // Evita che un singolo contatto su un dosso inclini l'auto di scatto.
+    [SerializeField, Min(0.1f)]
+    private float groundNormalSmoothing = 8f;
+
+    // Con il corpo bloccato su X/Z inclina solo il modello visivo,
+    // così i vincoli del Rigidbody non vengono contrastati.
+    [SerializeField]
+    private bool tiltVisualOnly = true;
 
     [Header("Fisica")]
     // Applica ai collider dell'auto un materiale senza attrito: è il motore a muovere l'auto,
@@ -124,12 +149,15 @@ public class BumperCarController : MonoBehaviour
     private float smoothedSteer;
     private float lastGroundedTime = float.NegativeInfinity;
     private Vector3 groundNormal = Vector3.up;
+    private Vector3 smoothedGroundNormal = Vector3.up;
+    private Transform visualPivot;
 
     private const float InputDeadzone = 0.05f;
     private const float StopThreshold = 0.15f;
     private const float MinSteerSpeed = 0.3f;
     private const float FallLimitY = -10f;
     private const float GroundNormalMinY = 0.5f;
+    private const float FlatGroundNormalMinY = 0.995f;
     private const float GroundGraceTime = 0.15f;
 
     public bool IsDrifting { get; private set; }
@@ -158,6 +186,9 @@ public class BumperCarController : MonoBehaviour
 
         if (useFrictionlessMaterial)
             ApplyCarMaterial();
+
+        if (alignToGround && freezeTilt && tiltVisualOnly)
+            CreateVisualPivot();
 
         spawnPosition = transform.position;
         spawnRotation = transform.rotation;
@@ -218,7 +249,16 @@ public class BumperCarController : MonoBehaviour
 
         bool grounded = Time.fixedTime - lastGroundedTime <= GroundGraceTime;
 
+        // La normale del terreno viene mediata: sui dossi i contatti cambiano di continuo
+        // e seguirli istantaneamente faceva "scattare" l'auto.
+        UpdateSmoothedGroundNormal(grounded);
+
         Vector3 velocity = body.linearVelocity;
+
+        // Su terreno quasi piano assorbe i piccoli rimbalzi verticali dovuti a dossi
+        // e piccole differenze di altezza tra le mesh.
+        if (grounded && smoothedGroundNormal.y >= FlatGroundNormalMinY && velocity.y > maxGroundUpSpeed)
+            velocity.y = maxGroundUpSpeed;
 
         // Velocità attuale lungo l'asse di marcia (positiva = avanti, negativa = retro)
         float forwardSpeed = Vector3.Dot(velocity, transform.forward);
@@ -248,6 +288,19 @@ public class BumperCarController : MonoBehaviour
         ApplyDownforce(forwardSpeed);
     }
 
+    private void LateUpdate()
+    {
+        UpdateVisualTilt();
+    }
+
+    private void UpdateSmoothedGroundNormal(bool grounded)
+    {
+        Vector3 target = grounded ? groundNormal : Vector3.up;
+        float t = 1f - Mathf.Exp(-groundNormalSmoothing * Time.fixedDeltaTime);
+
+        smoothedGroundNormal = Vector3.Slerp(smoothedGroundNormal, target, t).normalized;
+    }
+
     private void CheckGround(Collision collision)
     {
         Vector3 accumulatedNormal = Vector3.zero;
@@ -273,7 +326,15 @@ public class BumperCarController : MonoBehaviour
     // Inclina l'auto sulla normale del terreno mantenendo la direzione di marcia (yaw).
     private void AlignToGround()
     {
-        Vector3 up = groundNormal;
+        // Con il corpo bloccato su X/Z non si ruota mai il Rigidbody: i vincoli
+        // riporterebbero l'auto in posizione ad ogni passo fisico, creando vibrazioni.
+        if (freezeTilt)
+            return;
+
+        if (Vector3.Angle(smoothedGroundNormal, Vector3.up) < minTiltAngle)
+            return;
+
+        Vector3 up = smoothedGroundNormal;
         Vector3 forward = Vector3.ProjectOnPlane(transform.forward, up);
 
         if (forward.sqrMagnitude < 0.0001f)
@@ -286,6 +347,50 @@ public class BumperCarController : MonoBehaviour
         float t = 1f - Mathf.Exp(-groundAlignmentSpeed * Time.fixedDeltaTime);
 
         body.MoveRotation(Quaternion.Slerp(body.rotation, targetRotation, t));
+    }
+
+    // Inclina solo il modello visivo: la fisica resta dritta e stabile.
+    private void UpdateVisualTilt()
+    {
+        if (visualPivot == null)
+            return;
+
+        bool grounded = Time.fixedTime - lastGroundedTime <= GroundGraceTime;
+
+        Vector3 localUp = grounded
+            ? transform.InverseTransformDirection(smoothedGroundNormal).normalized
+            : Vector3.up;
+
+        Quaternion target = Vector3.Angle(localUp, Vector3.up) < minTiltAngle
+            ? Quaternion.identity
+            : Quaternion.FromToRotation(Vector3.up, localUp);
+
+        float t = 1f - Mathf.Exp(-groundAlignmentSpeed * Time.deltaTime);
+
+        visualPivot.localRotation = Quaternion.Slerp(visualPivot.localRotation, target, t);
+    }
+
+    // Sposta il modello sotto un pivot dedicato, lasciando fuori camera e collider.
+    private void CreateVisualPivot()
+    {
+        visualPivot = new GameObject("VisualTilt").transform;
+        visualPivot.SetParent(transform, false);
+
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = transform.GetChild(i);
+
+            if (child == visualPivot)
+                continue;
+
+            if (child.GetComponentInChildren<Camera>(true) != null)
+                continue;
+
+            if (child.GetComponentInChildren<Collider>(true) != null)
+                continue;
+
+            child.SetParent(visualPivot, true);
+        }
     }
 
     private void ApplyCarMaterial()
@@ -316,7 +421,11 @@ public class BumperCarController : MonoBehaviour
         smoothedSteer = 0f;
         IsDrifting = false;
         groundNormal = Vector3.up;
+        smoothedGroundNormal = Vector3.up;
         lastGroundedTime = float.NegativeInfinity;
+
+        if (visualPivot != null)
+            visualPivot.localRotation = Quaternion.identity;
     }
 
     private void ApplyThrottle(ref Vector3 velocity, float throttle, float currentForwardSpeed)
@@ -400,6 +509,14 @@ public class BumperCarController : MonoBehaviour
 
     private void ApplyDownforce(float currentForwardSpeed)
     {
-        body.AddForce(-transform.up * (downforce * Mathf.Abs(currentForwardSpeed)), ForceMode.Acceleration);
+        float acceleration = Mathf.Min(
+            downforce * Mathf.Abs(currentForwardSpeed),
+            maxDownforceAcceleration
+        );
+
+        if (acceleration <= 0f)
+            return;
+
+        body.AddForce(-transform.up * acceleration, ForceMode.Acceleration);
     }
 }

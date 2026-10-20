@@ -1327,11 +1327,16 @@ MonoBehaviour:
   driftLateralGrip: 2.5
   driftTurnMultiplier: 1.4
   minDriftSpeed: 3.5
-  downforce: 15
+  downforce: 1.5
+  maxDownforceAcceleration: 20
+  maxGroundUpSpeed: 1.5
   centerOfMassHeight: -0.25
   freezeTilt: 1
   alignToGround: 1
   groundAlignmentSpeed: 10
+  minTiltAngle: 3
+  groundNormalSmoothing: 8
+  tiltVisualOnly: 1
   useFrictionlessMaterial: 1
   bounciness: 0.2
 --- !u!1001 &1367640004
