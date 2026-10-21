@@ -71,8 +71,8 @@ public class ComandiListView
     {
         GameObject list = CreateUIObject("ListaComandi", parent);
         RectTransform rect = (RectTransform)list.transform;
-        rect.anchorMin = new Vector2(0f, 1f);
-        rect.anchorMax = new Vector2(0f, 1f);
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0f, 1f);
         rect.anchoredPosition = new Vector2(0f, -TopOffset);
         rect.sizeDelta = ListSize;
