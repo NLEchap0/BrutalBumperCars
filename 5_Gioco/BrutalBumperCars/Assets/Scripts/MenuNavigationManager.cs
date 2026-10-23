@@ -24,7 +24,7 @@ public class MenuNavigationManager : MonoBehaviour
 
     [Header("Impostazioni Statistiche Dettagliate")]
     [Tooltip("Coordinata Y di riposo (in alto dove sporge la freccia) per statistiche e BG")]
-    [SerializeField] private float yPosizioneNascostaStatistiche = -1340f;
+    [SerializeField] private float yPosizioneNascostaStatistiche = 1397f;
     [Tooltip("Tempo di discesa/risalita tra Y nascosta e Y: 0")]
     [SerializeField] private float durataAnimazioneStatistiche = 0.45f;
 
@@ -116,6 +116,7 @@ public class MenuNavigationManager : MonoBehaviour
         if (elementoExtra != null)
         {
             elementoExtra.SetActive(true);
+            elementoExtra.transform.Find("Freccia").gameObject.SetActive(false);
             elementoExtra.transform.SetAsFirstSibling(); // Sfondo dietro ai menu
             RectTransform rectExtra = elementoExtra.GetComponent<RectTransform>();
             // Resetta sia X che Y (azzerando eventuali offset verticali del garage)
@@ -263,6 +264,7 @@ public class MenuNavigationManager : MonoBehaviour
         if (background != null)
         {
             background.SetActive(true);
+            background.transform.Find("Freccia").gameObject.SetActive(true);
             background.transform.SetAsLastSibling();
             RectTransform rectBg = background.GetComponent<RectTransform>();
             rectBg.anchoredPosition = new Vector2(0f, startY);
