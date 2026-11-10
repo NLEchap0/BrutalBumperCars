@@ -1,9 +1,7 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
-/// Controllo dell'auto con fisica arcade ottimizzata: zero glide eccessivo,
-/// transizioni di frenata/retromarcia coerenti, derapata fluida e rotazione libera al 100%.
+/// Controllo dell'auto con fisica arcade: disaccoppiato da Input System per supportare sia Player che Bot.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class BumperCarController : MonoBehaviour
@@ -18,7 +16,6 @@ public class BumperCarController : MonoBehaviour
     private const float FlatGroundNormalMinY = 0.995f;
     private const float GroundGraceTime = 0.15f;
 
-    // Configurazione bilanciata fissa per evitare configurazioni errate nell'Inspector
     private const float DefaultMaxAcceleration = 28f;
     private const float DefaultStartAccelerationFactor = 0.25f;
     private const float DefaultAccelerationEasePower = 2.2f;
@@ -30,10 +27,6 @@ public class BumperCarController : MonoBehaviour
     #endregion
 
     #region Inspector - Configurazione
-
-    [Header("Input")]
-    [SerializeField] private InputActionReference moveAction;
-    [SerializeField] private InputActionReference driftAction;
 
     [Header("Movimento & Risposta (Anti-Glide)")]
     [Tooltip("Velocità massima in avanti (m/s).")]
@@ -138,13 +131,15 @@ public class BumperCarController : MonoBehaviour
     #region Stato Interno & Riferimenti
 
     private Rigidbody body;
-    private InputAction move;
-    private InputAction drift;
     private PhysicsMaterial carMaterial;
     private Transform visualPivot;
 
     private Vector3 spawnPosition;
     private Quaternion spawnRotation;
+
+    private float inputThrottle;
+    private float inputSteer;
+    private bool inputDrift;
 
     private float smoothedSteer;
     private float effectiveSteer;
@@ -174,27 +169,6 @@ public class BumperCarController : MonoBehaviour
         currentGrip = lateralGrip;
     }
 
-    private void OnEnable()
-    {
-        move = ResolveAction(moveAction, "Player/Move");
-        drift = ResolveAction(driftAction, "Player/Drift");
-
-        if (move == null)
-        {
-            enabled = false;
-            return;
-        }
-
-        move.Enable();
-        drift?.Enable();
-    }
-
-    private void OnDisable()
-    {
-        move?.Disable();
-        drift?.Disable();
-    }
-
     private void OnDestroy()
     {
         if (carMaterial != null)
@@ -209,9 +183,7 @@ public class BumperCarController : MonoBehaviour
             return;
         }
 
-        ReadInput(out float throttle, out float steerInput, out bool driftPressed);
-
-        smoothedSteer = Mathf.MoveTowards(smoothedSteer, steerInput, steerResponse * Time.fixedDeltaTime);
+        smoothedSteer = Mathf.MoveTowards(smoothedSteer, inputSteer, steerResponse * Time.fixedDeltaTime);
 
         bool grounded = IsGrounded;
         UpdateSmoothedGroundNormal(grounded);
@@ -221,13 +193,13 @@ public class BumperCarController : MonoBehaviour
             velocity.y = maxGroundUpSpeed;
 
         float forwardSpeed = Vector3.Dot(velocity, transform.forward);
-        IsDrifting = grounded && driftPressed && velocity.magnitude >= minDriftSpeed;
+        IsDrifting = grounded && inputDrift && velocity.magnitude >= minDriftSpeed;
 
         UpdateSpeedLimit();
 
         if (grounded)
         {
-            ApplyThrottle(ref velocity, throttle, forwardSpeed);
+            ApplyThrottle(ref velocity, inputThrottle, forwardSpeed);
             ApplyLateralGrip(ref velocity);
             ApplySteering(smoothedSteer, velocity);
         }
@@ -250,13 +222,33 @@ public class BumperCarController : MonoBehaviour
 
     #endregion
 
-    #region Inizializzazione & Input
+    #region Input Injection API
+
+    /// <summary>
+    /// Fornisce gli input di guida al veicolo (richiamato da PlayerCarInput, BotCarInput o AI).
+    /// </summary>
+    /// <param name="throttle">Valore tra -1 (retro) e 1 (avanti).</param>
+    /// <param name="steer">Valore tra -1 (sinistra) e 1 (destra).</param>
+    /// <param name="drift">Flag attivo per il drift.</param>
+    public void SetInputs(float throttle, float steer, bool drift)
+    {
+        inputThrottle = Mathf.Clamp(throttle, -1f, 1f);
+        inputSteer = Mathf.Clamp(steer, -1f, 1f);
+        inputDrift = drift;
+
+        if (Mathf.Abs(inputThrottle) > InputDeadzone || Mathf.Abs(inputSteer) > InputDeadzone)
+            body.WakeUp();
+    }
+
+    #endregion
+
+    #region Inizializzazione Fisica
 
     private void InitializePhysics()
     {
         body = GetComponent<Rigidbody>();
         body.linearDamping = 0.1f;
-        body.angularDamping = 0f; // Rotazione completamente libera al 100% (nessun limite di angolo o damping)
+        body.angularDamping = 0f;
         body.interpolation = RigidbodyInterpolation.Interpolate;
         body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         body.centerOfMass = new Vector3(body.centerOfMass.x, centerOfMassHeight, body.centerOfMass.z);
@@ -299,29 +291,9 @@ public class BumperCarController : MonoBehaviour
         }
     }
 
-    private static InputAction ResolveAction(InputActionReference reference, string fallbackPath)
-    {
-        if (reference != null && reference.action != null)
-            return reference.action;
-
-        return InputSystem.actions != null ? InputSystem.actions.FindAction(fallbackPath, false) : null;
-    }
-
-    private void ReadInput(out float throttle, out float steer, out bool driftPressed)
-    {
-        Vector2 rawInput = move.ReadValue<Vector2>();
-
-        throttle = Mathf.Abs(rawInput.y) > InputDeadzone ? rawInput.y : 0f;
-        steer = Mathf.Abs(rawInput.x) > InputDeadzone ? rawInput.x : 0f;
-        driftPressed = drift != null && drift.IsPressed();
-
-        if (throttle != 0f || steer != 0f)
-            body.WakeUp();
-    }
-
     #endregion
 
-    #region Fisica di Guida Coerente & Senza Glide
+    #region Fisica di Guida
 
     private void UpdateSpeedLimit()
     {
@@ -337,34 +309,31 @@ public class BumperCarController : MonoBehaviour
 
         if (Mathf.Abs(throttle) > 0.01f)
         {
-            if (throttle > 0f) // Accelerazione in avanti (R2 o W)
+            if (throttle > 0f)
             {
                 targetSpeed = currentMaxSpeedLimit * throttle;
 
                 if (forwardSpeed < -StopThreshold)
                 {
-                    // Se stiamo andando in retromarcia e premiamo avanti -> frena energicamente
                     accelRate = braking;
                     targetSpeed = 0f;
                 }
                 else
                 {
-                    // Ease-In fluida e progressiva
                     float speedRatio = Mathf.Clamp01(Mathf.Max(forwardSpeed, 0f) / maxSpeed);
                     float smoothCurve = Mathf.Pow(speedRatio, DefaultAccelerationEasePower);
                     accelRate = maxAcceleration * Mathf.Lerp(DefaultStartAccelerationFactor, 1f, smoothCurve);
 
                     if (forwardSpeed > targetSpeed)
-                        accelRate = 8f; // Rallentamento controllato se rilasci parzialmente il grilletto
+                        accelRate = 8f;
                 }
             }
-            else // Retromarcia (L2 o S)
+            else
             {
-                targetSpeed = maxReverseSpeed * throttle; // throttle è negativo
+                targetSpeed = maxReverseSpeed * throttle;
 
                 if (forwardSpeed > StopThreshold)
                 {
-                    // Se stiamo avanzando e premiamo retro -> frena energicamente
                     accelRate = braking;
                     targetSpeed = 0f;
                 }
@@ -376,11 +345,9 @@ public class BumperCarController : MonoBehaviour
         }
         else
         {
-            // Nessun input sui pedali: applica una decelerazione elevata per eliminare completamente il glide
             targetSpeed = 0f;
             accelRate = coastDeceleration;
 
-            // Se siamo vicinissimi allo zero, ferma l'auto per evitare micro-scivolamenti infiniti
             if (Mathf.Abs(forwardSpeed) < StopThreshold)
             {
                 velocity -= transform.forward * forwardSpeed;
@@ -441,7 +408,6 @@ public class BumperCarController : MonoBehaviour
         float baseTurn = IsDrifting ? turnSpeed * driftTurnMultiplier : turnSpeed;
         float yawRateDeg = effectiveSteer * baseTurn * speedFactor * directionSign;
 
-        // Rotazione e testacoda completamente liberi e continui
         if (IsDrifting)
         {
             float lateralSpeed = Vector3.Dot(velocity, transform.right);
@@ -543,6 +509,9 @@ public class BumperCarController : MonoBehaviour
         body.position = spawnPosition;
         body.rotation = spawnRotation;
 
+        inputThrottle = 0f;
+        inputSteer = 0f;
+        inputDrift = false;
         smoothedSteer = 0f;
         effectiveSteer = 0f;
         currentMaxSpeedLimit = maxSpeed;
