@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Gestisce lo spawn casuale di Player e Bot su 8 spawn point.
 /// Rimuove automaticamente l'auto di test/originale lasciata nella scena all'avvio.
+/// I bot nascono attivi di default (enabled = true).
 /// </summary>
 public class CarSpawner : MonoBehaviour
 {
@@ -25,8 +26,8 @@ public class CarSpawner : MonoBehaviour
     [Tooltip("Numero totale di bot da generare (7 se vuoi riempire gli 8 slot totali).")]
     [SerializeField, Range(0, 15)] private int botCount = 7;
 
-    [Tooltip("Se attivare subito l'AI dei bot o attendere il via dal countdown.")]
-    [SerializeField] private bool activateBotOnSpawn = false;
+    [Tooltip("Stato di attivazione dell'AI dei bot allo spawn (attivo di default).")]
+    [SerializeField] private bool activateBotOnSpawn = true;
 
     private GameObject playerInstance;
     private readonly List<GameObject> botInstances = new List<GameObject>();
@@ -49,14 +50,12 @@ public class CarSpawner : MonoBehaviour
     /// </summary>
     private void CleanUpSceneOriginalCar()
     {
-        // 1. Se hai trascinato esplicitamente la macchina nel campo dedicato
         if (sceneCarToDestroy != null)
         {
             Destroy(sceneCarToDestroy);
             return;
         }
 
-        // 2. Se hai trascinato come carPrefab un oggetto appartenente alla scena (e non dalla cartella Prefabs)
         if (carPrefab != null && carPrefab.scene.IsValid() && carPrefab.scene.isLoaded)
         {
             GameObject sceneOriginal = carPrefab;
@@ -65,7 +64,6 @@ public class CarSpawner : MonoBehaviour
             return;
         }
 
-        // 3. Fallback: cerca qualsiasi altra auto residua nella scena non generata da questo spawner
         BumperCarController existingCar = FindFirstObjectByType<BumperCarController>();
         if (existingCar != null && existingCar.gameObject != playerInstance && !botInstances.Contains(existingCar.gameObject))
         {
@@ -98,21 +96,20 @@ public class CarSpawner : MonoBehaviour
             return;
         }
 
-        // 1. Crea e mescola una lista di indici [0, 1, ..., spawnPoints.Length - 1] (Fisher-Yates)
         List<int> availableIndices = new List<int>();
         for (int i = 0; i < spawnPoints.Length; i++)
             availableIndices.Add(i);
 
         Shuffle(availableIndices);
 
-        // 2. Il primo indice mescolato viene assegnato al Player
+        // Slot 0 assegnato al Player
         int playerSpawnIndex = availableIndices[0];
         Transform playerPoint = spawnPoints[playerSpawnIndex];
         playerInstance = Instantiate(carPrefab, playerPoint.position, playerPoint.rotation);
         playerInstance.name = "Player_BumperCar";
         ConfigureAsPlayer(playerInstance);
 
-        // 3. I punti successivi vengono assegnati ai Bot
+        // Gli altri slot assegnati ai Bot
         int botsToSpawn = Mathf.Min(botCount, availableIndices.Count - 1);
         for (int i = 1; i <= botsToSpawn; i++)
         {
@@ -129,6 +126,7 @@ public class CarSpawner : MonoBehaviour
 
     private void ConfigureAsPlayer(GameObject car)
     {
+        // Il Player NON deve mai avere l'AI attiva
         BumperBotAI botAI = car.GetComponent<BumperBotAI>();
         if (botAI != null)
             botAI.enabled = false;
@@ -140,6 +138,7 @@ public class CarSpawner : MonoBehaviour
 
     private void ConfigureAsBot(GameObject car)
     {
+        // Rimuove componenti specifici del Player
         PlayerCarInput playerInput = car.GetComponent<PlayerCarInput>();
         if (playerInput != null)
             Destroy(playerInput);
@@ -161,11 +160,12 @@ public class CarSpawner : MonoBehaviour
         foreach (var listener in listeners)
             Destroy(listener);
 
+        // Configura e attiva l'AI di default per i non-player
         BumperBotAI botAI = car.GetComponent<BumperBotAI>();
         if (botAI == null)
             botAI = car.AddComponent<BumperBotAI>();
 
-        botAI.enabled = activateBotOnSpawn;
+        botAI.enabled = true; // Sempre attivo per i bot
     }
 
     public void EnableAllBots()

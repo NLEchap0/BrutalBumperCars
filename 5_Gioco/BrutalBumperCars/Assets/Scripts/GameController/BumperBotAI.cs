@@ -1,30 +1,30 @@
 using UnityEngine;
 
-/// <summary>
-/// Controller AI di guida per i bot con tracciamento bersaglio, evitamento ostacoli con Raycast e gestione stallo/retromarcia.
-/// </summary>
 [RequireComponent(typeof(BumperCarController))]
 public class BumperBotAI : MonoBehaviour
 {
-    [Header("Target & Inseguimento")]
-    [Tooltip("Bersaglio corrente da inseguire / speronare.")]
+    [Header("Inseguimento & Bersagli")]
+    [Tooltip("Bersaglio attuale (assegnato in automatico se nullo).")]
     [SerializeField] private Transform target;
 
     [Tooltip("Sensibilità di sterzo verso il bersaglio.")]
-    [SerializeField, Min(0.1f)] private float steeringSensitivity = 1.5f;
+    [SerializeField, Min(0.1f)] private float steeringSensitivity = 1.6f;
 
-    [Tooltip("Distanza minima sotto cui il bot prova a derapare per curvare stretto.")]
-    [SerializeField] private float driftDistanceThreshold = 8f;
+    [Tooltip("Distanza minima sotto cui il bot derapa se deve curvare forte.")]
+    [SerializeField] private float driftDistanceThreshold = 7f;
+
+    [Tooltip("Intervallo in secondi per ricalcolare l'avversario più vicino.")]
+    [SerializeField] private float retargetInterval = 2.5f;
 
     [Header("Rilevamento Ostacoli (Raycast)")]
-    [SerializeField] private float sensorLength = 7f;
+    [SerializeField] private float sensorLength = 6f;
     [SerializeField] private float sideSensorAngle = 30f;
     [SerializeField] private LayerMask obstacleLayer = ~0;
 
-    [Header("Rilevamento Blocco (Anti-Stuck)")]
-    [SerializeField] private float stuckSpeedThreshold = 1f;
-    [SerializeField] private float stuckTimeThreshold = 1.5f;
-    [SerializeField] private float reverseDuration = 1.2f;
+    [Header("Anti-Stuck (Disincaglio)")]
+    [SerializeField] private float stuckSpeedThreshold = 1.2f;
+    [SerializeField] private float stuckTimeThreshold = 1.2f;
+    [SerializeField] private float reverseDuration = 1.0f;
 
     private BumperCarController car;
     private Rigidbody body;
@@ -32,6 +32,7 @@ public class BumperBotAI : MonoBehaviour
     private float stuckTimer;
     private float reverseTimer;
     private int reverseSteerDirection = 1;
+    private float nextRetargetTime;
 
     private void Awake()
     {
@@ -39,9 +40,14 @@ public class BumperBotAI : MonoBehaviour
         body = GetComponent<Rigidbody>();
     }
 
+    private void Start()
+    {
+        AcquireNearestTarget();
+    }
+
     private void Update()
     {
-        // Se siamo in manovra di disincaglio
+        // 1. Manovra di retromarcia se incagliato contro una parete o un'altra auto
         if (reverseTimer > 0f)
         {
             reverseTimer -= Time.deltaTime;
@@ -49,49 +55,79 @@ public class BumperBotAI : MonoBehaviour
             return;
         }
 
-        // Se non c'è un target esplicito cerca l'auto del player
+        // 2. Controllo periodico del bersaglio più vicino
+        if (Time.time >= nextRetargetTime || target == null || !target.gameObject.activeInHierarchy)
+        {
+            AcquireNearestTarget();
+            nextRetargetTime = Time.time + retargetInterval;
+        }
+
         if (target == null)
         {
-            PlayerCarInput player = FindFirstObjectByType<PlayerCarInput>();
-            if (player != null) target = player.transform;
-            else
-            {
-                car.SetInputs(0f, 0f, false);
-                return;
-            }
+            car.SetInputs(0f, 0f, false);
+            return;
         }
 
         CheckStuck();
 
-        // 1. Calcolo direzione verso bersaglio
+        // 3. Calcolo angolo e distanza verso il bersaglio scelto
         Vector3 localTarget = transform.InverseTransformPoint(target.position);
         float targetAngle = Mathf.Atan2(localTarget.x, localTarget.z) * Mathf.Rad2Deg;
         float distance = localTarget.magnitude;
 
-        float steer = Mathf.Clamp(targetAngle / 45f * steeringSensitivity, -1f, 1f);
-        float throttle = Mathf.Cos(targetAngle * Mathf.Deg2Rad) > 0.05f ? 1f : 0.4f;
-        bool drift = distance < driftDistanceThreshold && Mathf.Abs(targetAngle) > 35f;
+        float steer = Mathf.Clamp((targetAngle / 45f) * steeringSensitivity, -1f, 1f);
 
-        // 2. Modifica sterzo per evitamento ostacoli (3 sensori frontali)
+        // Se è quasi allineato spinge al 100%, altrimenti curva a velocità moderata
+        float throttle = Mathf.Cos(targetAngle * Mathf.Deg2Rad) > 0.1f ? 1f : 0.45f;
+
+        // Drift su curve strette a corta distanza
+        bool drift = distance < driftDistanceThreshold && Mathf.Abs(targetAngle) > 40f;
+
+        // 4. Correzione sterzo con i sensori di ostacolo
         steer += EvaluateObstacleAvoidance();
         steer = Mathf.Clamp(steer, -1f, 1f);
 
         car.SetInputs(throttle, steer, drift);
     }
 
+    private void AcquireNearestTarget()
+    {
+        // Trova tutte le auto presenti nell'arena tramite il controller comune
+        BumperCarController[] allCars = FindObjectsByType<BumperCarController>(FindObjectsSortMode.None);
+
+        float closestDistanceSqr = float.MaxValue;
+        Transform closest = null;
+        Vector3 currentPos = transform.position;
+
+        foreach (var otherCar in allCars)
+        {
+            if (otherCar == null || otherCar.gameObject == gameObject)
+                continue;
+
+            float distSqr = (otherCar.transform.position - currentPos).sqrMagnitude;
+            if (distSqr < closestDistanceSqr)
+            {
+                closestDistanceSqr = distSqr;
+                closest = otherCar.transform;
+            }
+        }
+
+        target = closest;
+    }
+
     private float EvaluateObstacleAvoidance()
     {
         float avoidMultiplier = 0f;
-        Vector3 origin = transform.position + Vector3.up * 0.5f;
+        Vector3 origin = transform.position + Vector3.up * 0.4f;
 
-        // Sensore centrale
+        // Raggio frontale
         if (Physics.Raycast(origin, transform.forward, out RaycastHit hitCenter, sensorLength, obstacleLayer))
         {
             if (hitCenter.transform != target)
-                avoidMultiplier += hitCenter.normal.x > 0 ? 0.7f : -0.7f;
+                avoidMultiplier += hitCenter.normal.x > 0 ? 0.75f : -0.75f;
         }
 
-        // Sensore destro
+        // Raggio angolato destro
         Vector3 rightDir = Quaternion.Euler(0, sideSensorAngle, 0) * transform.forward;
         if (Physics.Raycast(origin, rightDir, out RaycastHit hitRight, sensorLength * 0.75f, obstacleLayer))
         {
@@ -99,7 +135,7 @@ public class BumperBotAI : MonoBehaviour
                 avoidMultiplier -= 0.6f;
         }
 
-        // Sensore sinistro
+        // Raggio angolato sinistro
         Vector3 leftDir = Quaternion.Euler(0, -sideSensorAngle, 0) * transform.forward;
         if (Physics.Raycast(origin, leftDir, out RaycastHit hitLeft, sensorLength * 0.75f, obstacleLayer))
         {

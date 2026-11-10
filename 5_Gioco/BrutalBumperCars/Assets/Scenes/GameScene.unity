@@ -936,7 +936,7 @@ PrefabInstance:
       addedObject: {fileID: 1343300432}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 13ff3a9497056df41bc3aa38bce8733c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1343300431}
+      addedObject: {fileID: 1343300434}
   m_SourcePrefab: {fileID: 100100000, guid: 13ff3a9497056df41bc3aa38bce8733c, type: 3}
 --- !u!4 &1343300429 stripped
 Transform:
@@ -970,29 +970,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!114 &1343300431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 94550438}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ac4f0b25b67e2141a4e8e5a2517ee10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  steeringSensitivity: 1.5
-  driftDistanceThreshold: 8
-  sensorLength: 7
-  sideSensorAngle: 30
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  stuckSpeedThreshold: 1
-  stuckTimeThreshold: 1.5
-  reverseDuration: 1.2
 --- !u!114 &1343300432
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1050,6 +1027,30 @@ MonoBehaviour:
   tiltVisualOnly: 1
   useFrictionlessMaterial: 1
   bounciness: 0
+--- !u!114 &1343300434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 94550438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ac4f0b25b67e2141a4e8e5a2517ee10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  steeringSensitivity: 1.6
+  driftDistanceThreshold: 7
+  retargetInterval: 2.5
+  sensorLength: 6
+  sideSensorAngle: 30
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  stuckSpeedThreshold: 1.2
+  stuckTimeThreshold: 1.2
+  reverseDuration: 1
 --- !u!1001 &1367640004
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1675,50 +1676,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1914297558}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
---- !u!1 &1859500128
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1859500130}
-  - component: {fileID: 1859500129}
-  m_Layer: 0
-  m_Name: gg
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1859500129
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1859500128}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40bd891979bac7540a99324ac886ed65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1859500130
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1859500128}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25.45185, y: -0.46, z: 0.36898}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1885308567
 GameObject:
   m_ObjectHideFlags: 0
@@ -2289,4 +2246,3 @@ SceneRoots:
   - {fileID: 1914297558}
   - {fileID: 1343300428}
   - {fileID: 1419410096}
-  - {fileID: 1859500130}
