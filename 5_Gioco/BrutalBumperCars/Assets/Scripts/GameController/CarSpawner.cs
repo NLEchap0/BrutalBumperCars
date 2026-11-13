@@ -27,7 +27,7 @@ public class CarSpawner : MonoBehaviour
     [SerializeField, Range(0, 15)] private int botCount = 7;
 
     [Tooltip("Stato di attivazione dell'AI dei bot allo spawn (attivo di default).")]
-    [SerializeField] private bool activateBotOnSpawn = true;
+    [SerializeField] private bool activateBotOnSpawn = false;
 
     private GameObject playerInstance;
     private readonly List<GameObject> botInstances = new List<GameObject>();
