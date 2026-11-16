@@ -19,18 +19,12 @@ public class PlayerSpawnManager : MonoBehaviour
        
 
         int rnd = Random.Range(0, spawnPoints.Count);
-        for (int i = 0; i < spawnPoints.Count; i++)
-        {
-            {
-                if (i == rnd)
-                {
-                    bots[i].SetActive(false);
+        
+        bots[rnd].SetActive(false);
 
-                    player.position = spawnPoints[i].position;
-                    player.rotation = spawnPoints[i].rotation;
-                }
-            }
-        }
+        player.position = spawnPoints[rnd].position;
+        player.rotation = spawnPoints[rnd].rotation;
+                
 
     }
 }
