@@ -20,7 +20,7 @@ public class PlayerSpawnManager : MonoBehaviour
 
         int rnd = Random.Range(0, spawnPoints.Count);
         
-        bots[rnd].SetActive(false);
+        bots[rnd].SetActive(false); //per il prodotto finale cambiare in Destroy(bots[rnd]);
 
         player.position = spawnPoints[rnd].position;
         player.rotation = spawnPoints[rnd].rotation;
