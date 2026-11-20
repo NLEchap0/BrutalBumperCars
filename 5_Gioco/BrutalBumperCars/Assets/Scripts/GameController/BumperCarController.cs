@@ -242,6 +242,47 @@ public class BumperCarController : MonoBehaviour
 
     #endregion
 
+    /// <summary>
+    /// Ripristina lo stato del veicolo all'inizio di un episodio.
+    /// </summary>
+    public void ResetForEpisode(Vector3 position, Quaternion rotation)
+    {
+        // Aggiorna lo spawn di riferimento.
+        spawnPosition = position;
+        spawnRotation = rotation;
+
+        // Azzera la fisica.
+        body.linearVelocity = Vector3.zero;
+        body.angularVelocity = Vector3.zero;
+
+        // Riposiziona il Rigidbody.
+        body.position = position;
+        body.rotation = rotation;
+
+        // Azzera gli input.
+        inputThrottle = 0f;
+        inputSteer = 0f;
+        inputDrift = false;
+
+        // Ripristina gli stati interni del movimento.
+        smoothedSteer = 0f;
+        effectiveSteer = 0f;
+        currentMaxSpeedLimit = maxSpeed;
+        currentGrip = lateralGrip;
+        IsDrifting = false;
+
+        // Ripristina le informazioni sul terreno.
+        groundNormal = Vector3.up;
+        smoothedGroundNormal = Vector3.up;
+        lastGroundedTime = float.NegativeInfinity;
+
+        // Ripristina l'inclinazione del modello.
+        if (visualPivot != null)
+            visualPivot.localRotation = Quaternion.identity;
+
+        body.WakeUp();
+    }
+
     #region Inizializzazione Fisica
 
     private void InitializePhysics()
@@ -504,7 +545,10 @@ public class BumperCarController : MonoBehaviour
 
     private void Respawn()
     {
-        body.linearVelocity = Vector3.zero;
+
+        ResetForEpisode(spawnPosition, spawnRotation);
+
+        /*body.linearVelocity = Vector3.zero;
         body.angularVelocity = Vector3.zero;
         body.position = spawnPosition;
         body.rotation = spawnRotation;
@@ -522,7 +566,7 @@ public class BumperCarController : MonoBehaviour
         lastGroundedTime = float.NegativeInfinity;
 
         if (visualPivot != null)
-            visualPivot.localRotation = Quaternion.identity;
+            visualPivot.localRotation = Quaternion.identity;*/
     }
 
     private static float ComputeExpDecay(float rate, float deltaTime) => 1f - Mathf.Exp(-rate * deltaTime);
