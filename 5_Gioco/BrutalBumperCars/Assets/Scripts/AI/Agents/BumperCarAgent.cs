@@ -95,7 +95,30 @@ public class BumperCarAgent : Agent
     // e le traduce in comandi per l'automobile.
     public override void OnActionReceived(ActionBuffers actions)
     {
-        // Il collegamento al sistema di movimento
-        // verrà implementato successivamente.
+        // Legge le due azioni continue della rete neurale.
+        float throttle = Mathf.Clamp(
+            actions.ContinuousActions[0], -1f, 1f);
+
+        float steer = Mathf.Clamp(
+            actions.ContinuousActions[1], -1f, 1f);
+
+        // Memorizza gli input per le osservazioni successive.
+        lastThrottle = throttle;
+        lastSteer = steer;
+
+        // Applica i comandi al controller dell'automobile.
+        // Il drift rimane disabilitato nel primo addestramento.
+        car.SetInputs(throttle, steer, false);
     }
+
+
+    public override void Heuristic(in ActionBuffers actionsOut)
+    {
+        var continuousActions = actionsOut.ContinuousActions;
+
+        // Valori temporanei per verificare il movimento.
+        continuousActions[0] = 0.5f; // Accelerazione
+        continuousActions[1] = 0f;   // Sterzata
+    }
+
 }
