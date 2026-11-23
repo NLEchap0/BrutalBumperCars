@@ -184,7 +184,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
@@ -393,6 +393,59 @@ MonoBehaviour:
   gamepadDeadzone: 0.15
   minPitch: -60
   maxPitch: 70
+--- !u!1 &216190336
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 216190337}
+  - component: {fileID: 216190338}
+  m_Layer: 7
+  m_Name: RampObstacleSensorLeft
+  m_TagString: Obstacle
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &216190337
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 216190336}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.021561712, z: -0, w: 0.99976754}
+  m_LocalPosition: {x: -9.9179, y: 0.077, z: -8.755625}
+  m_LocalScale: {x: 1, y: 1.4707, z: 3.4557834}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 637627290}
+  m_LocalEulerAnglesHint: {x: 0, y: -2.471, z: 0}
+--- !u!65 &216190338
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 216190336}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0, y: 0.8528215, z: 0.95400894}
+  m_Center: {x: -0.3960035, y: -0.07359288, z: -0.042143524}
 --- !u!1 &220526664 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8595771550467820155, guid: 82a67509571f27a49b71d4197f7017f4, type: 3}
@@ -408,9 +461,9 @@ GameObject:
   m_Component:
   - component: {fileID: 224368544}
   - component: {fileID: 224368545}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Collider
-  m_TagString: Untagged
+  m_TagString: Car
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -518,6 +571,59 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8595771550467820155, guid: 82a67509571f27a49b71d4197f7017f4, type: 3}
   m_PrefabInstance: {fileID: 246230348}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &255431888
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 255431889}
+  - component: {fileID: 255431890}
+  m_Layer: 7
+  m_Name: RampObstacleSensorRight
+  m_TagString: Obstacle
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &255431889
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 255431888}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.09031252, z: -0, w: 0.9959135}
+  m_LocalPosition: {x: -12.057, y: 0.077, z: -8.91}
+  m_LocalScale: {x: 1, y: 1.4707, z: 3.4557834}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 637627290}
+  m_LocalEulerAnglesHint: {x: 0, y: -10.363, z: 0}
+--- !u!65 &255431890
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 255431888}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0, y: 0.8528215, z: 0.85428935}
+  m_Center: {x: -0.38445985, y: -0.07359288, z: -0.06165177}
 --- !u!64 &301312243
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -598,6 +704,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1914297558}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &369555652
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 369555653}
+  - component: {fileID: 369555654}
+  m_Layer: 7
+  m_Name: RampObstacleSensorRight
+  m_TagString: Obstacle
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &369555653
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369555652}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.99608064, z: -0, w: -0.08844938}
+  m_LocalPosition: {x: -12.722, y: 0.077, z: -9.506}
+  m_LocalScale: {x: 0.9770475, y: 1.4706992, z: 3.4968557}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1865387968}
+  m_LocalEulerAnglesHint: {x: 0, y: 169.851, z: 0}
+--- !u!65 &369555654
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 369555652}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0, y: 0.8528215, z: 0.800775}
+  m_Center: {x: -0.35560575, y: -0.07359289, z: -0.08951858}
 --- !u!64 &371381296
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -722,6 +881,59 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8595771550467820155, guid: 82a67509571f27a49b71d4197f7017f4, type: 3}
   m_PrefabInstance: {fileID: 1003139016}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &611580188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 611580189}
+  - component: {fileID: 611580190}
+  m_Layer: 7
+  m_Name: RampObstacleSensorLeft
+  m_TagString: Obstacle
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &611580189
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 611580188}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.9997337, z: -0, w: -0.02307716}
+  m_LocalPosition: {x: -10.634062, y: 0.077, z: -9.404019}
+  m_LocalScale: {x: 0.991651, y: 1.4706992, z: 3.46969}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1865387968}
+  m_LocalEulerAnglesHint: {x: 0, y: 177.355, z: 0}
+--- !u!65 &611580190
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 611580188}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0, y: 0.8528215, z: 0.8772986}
+  m_Center: {x: -0.3524517, y: -0.07359289, z: -0.1565424}
 --- !u!1 &636546522
 GameObject:
   m_ObjectHideFlags: 0
@@ -734,9 +946,9 @@ GameObject:
   - component: {fileID: 636546526}
   - component: {fileID: 636546525}
   - component: {fileID: 636546524}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: piano-rialzato
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1534,6 +1746,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -90
       objectReference: {fileID: 0}
+    - target: {fileID: -3858832575443553255, guid: e3189d695e5f296409a6b35147351012, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -3858832575443553255, guid: e3189d695e5f296409a6b35147351012, type: 3}
+      propertyPath: m_TagString
+      value: Obstacle
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: e3189d695e5f296409a6b35147351012, type: 3}
       propertyPath: m_Name
       value: arena-centro
@@ -1649,9 +1869,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: rampa 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: d188492837729b5478da3ad731fb19d0, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: d188492837729b5478da3ad731fb19d0, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects: [{targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d188492837729b5478da3ad731fb19d0, type: 3}, insertIndex: -1, addedObject: {fileID: 611580189}},
+      {targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d188492837729b5478da3ad731fb19d0, type: 3}, insertIndex: -1, addedObject: {fileID: 369555653}}]
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: d188492837729b5478da3ad731fb19d0, type: 3}
       insertIndex: -1
@@ -2055,9 +2284,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: rampa 2
       objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: d188492837729b5478da3ad731fb19d0, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: d188492837729b5478da3ad731fb19d0, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects: [{targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d188492837729b5478da3ad731fb19d0, type: 3}, insertIndex: -1, addedObject: {fileID: 216190337}},
+      {targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d188492837729b5478da3ad731fb19d0, type: 3}, insertIndex: -1, addedObject: {fileID: 255431889}}]
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 8164078558771037576, guid: d188492837729b5478da3ad731fb19d0, type: 3}
       insertIndex: -1
@@ -2359,6 +2597,22 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -0.12
       objectReference: {fileID: 0}
+    - target: {fileID: -432140785431089173, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -432140785431089173, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
+    - target: {fileID: -232563159587167314, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -232563159587167314, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: -181492378351714109, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.15
@@ -2366,6 +2620,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
       propertyPath: m_Name
       value: arena-stadio
+      objectReference: {fileID: 0}
+    - target: {fileID: 7430048274282280334, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7430048274282280334, guid: b9ff84bdb07e1b344807d29fc553dfab, type: 3}
+      propertyPath: m_TagString
+      value: Obstacle
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -2556,7 +2818,7 @@ PrefabInstance:
       value: 180
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
