@@ -560,7 +560,7 @@ MonoBehaviour:
   m_RayLength: 20
   m_RayLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967241
+    m_Bits: 4294966984
   m_ObservationStacks: 1
   m_AlternatingRayOrder: 1
   m_UseBatchedRaycasts: 0
