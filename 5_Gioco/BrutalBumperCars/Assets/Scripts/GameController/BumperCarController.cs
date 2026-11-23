@@ -150,6 +150,8 @@ public class BumperCarController : MonoBehaviour
     private Vector3 smoothedGroundNormal = Vector3.up;
 
     public bool IsDrifting { get; private set; }
+    public float CurrentSteer => smoothedSteer; // Sterzata smussata (-1 a 1)
+    public float EffectiveSteer => effectiveSteer; // Sterzata effettiva con inerzia (-1 a 1)
     private bool IsGrounded => Time.fixedTime - lastGroundedTime <= GroundGraceTime;
 
     #endregion
