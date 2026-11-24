@@ -152,6 +152,8 @@ public class BumperCarController : MonoBehaviour
     public bool IsDrifting { get; private set; }
     public float CurrentSteer => smoothedSteer; // Sterzata smussata (-1 a 1)
     public float EffectiveSteer => effectiveSteer; // Sterzata effettiva con inerzia (-1 a 1)
+    public Quaternion VisualTiltRotation => visualPivot != null ? visualPivot.localRotation : Quaternion.identity;
+    public Transform VisualPivot => visualPivot;
     private bool IsGrounded => Time.fixedTime - lastGroundedTime <= GroundGraceTime;
 
     #endregion

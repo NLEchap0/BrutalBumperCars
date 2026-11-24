@@ -386,13 +386,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  vehicleRigidbody: {fileID: 1343300430}
+  cockpitCamera: {fileID: 95657846}
   degreesPerMouseUnit: 0.12
   gamepadDegreesPerSecond: 200
   gamepadMinSensitivityMultiplier: 0.8
   gamepadMaxSensitivityMultiplier: 1.8
   gamepadDeadzone: 0.15
-  minPitch: -60
-  maxPitch: 70
+  maxYaw: 110
+  minPitch: -45
+  maxPitch: 60
+  mouseSmoothTime: 0.02
+  gamepadSmoothTime: 0.06
+  autoCenterLook: 1
+  autoCenterDelay: 1.5
+  autoCenterSpeed: 3.5
+  minSpeedForAutoCenter: 2
+  maxCornerRoll: 8.5
+  maxAccelPitch: 5.5
+  turnLookAheadYaw: 6
+  maxHeadGShift: 0.07
+  physicsResponseSpeed: 7
+  vehicleTiltFollowRatio: 0.6
+  maxFollowedTilt: 20
+  bobFrequency: 13
+  bobAmplitude: 0.012
+  baseFov: 65
+  maxBoostFov: 80
+  maxReferenceSpeed: 22
+  autoImpactThreshold: 6
+  shakeDecay: 3.8
 --- !u!1 &216190336
 GameObject:
   m_ObjectHideFlags: 0
