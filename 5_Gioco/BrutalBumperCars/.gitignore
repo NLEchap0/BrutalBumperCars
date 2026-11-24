@@ -41,3 +41,6 @@ sysinfo.txt
 *.temp
 *.bak
 *~
+
+# Unity ML-Agents generated profiling files
+**/ML-Agents/Timers/
