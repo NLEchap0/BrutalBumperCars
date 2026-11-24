@@ -456,7 +456,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8595771550467820155}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4ac4f0b25b67e2141a4e8e5a2517ee10, type: 3}
   m_Name: 
@@ -535,9 +535,14 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
-  trainingMaxSteps: 3000
   referenceSpeed: 50
   referenceAngularSpeed: 3
+  targetForwardSpeed: 15
+  movementReward: 0.0015
+  stationarySpeedThreshold: 1
+  stationaryPenalty: 0.001
+  obstacleCollisionPenalty: 0.15
+  carCollisionPenalty: 0.01
 --- !u!114 &6593201240654251327
 MonoBehaviour:
   m_ObjectHideFlags: 0

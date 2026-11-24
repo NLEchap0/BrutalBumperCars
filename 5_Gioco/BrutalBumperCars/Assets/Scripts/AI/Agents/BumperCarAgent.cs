@@ -11,10 +11,6 @@ using Unity.MLAgents.Policies;
 [RequireComponent(typeof(DecisionRequester))]
 public class BumperCarAgent : Agent
 {
-    [Header("Configurazione addestramento")]
-    [SerializeField, Min(1)]
-    private int trainingMaxSteps = 3000;
-
     [Header("Normalizzazione osservazioni")]
     [SerializeField, Min(0.1f)]
     private float referenceSpeed = 50f;
@@ -31,6 +27,28 @@ public class BumperCarAgent : Agent
     private float lastThrottle;
     private float lastSteer;
 
+
+    [Header("Ricompense - Movimento")]
+    [SerializeField, Min(0.1f)]
+    private float targetForwardSpeed = 15f;
+
+    [SerializeField, Min(0f)]
+    private float movementReward = 0.0015f;
+
+    [SerializeField, Min(0f)]
+    private float stationarySpeedThreshold = 1f;
+
+    [SerializeField, Min(0f)]
+    private float stationaryPenalty = 0.001f;
+
+    [Header("Penalità - Collisioni")]
+    [SerializeField, Min(0f)]
+    private float obstacleCollisionPenalty = 0.15f;
+
+    [SerializeField, Min(0f)]
+    private float carCollisionPenalty = 0.05f;
+
+
     public override void Initialize()
     {
         car = GetComponent<BumperCarController>();
@@ -40,11 +58,9 @@ public class BumperCarAgent : Agent
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
-        // Limita gli episodi soltanto durante l'addestramento.
-        // In gioco normale il modello non dovrà resettarsi automaticamente.
-        MaxStep = Academy.Instance.IsCommunicatorOn
-            ? trainingMaxSteps
-            : 0;
+        // La durata degli episodi viene gestita
+        // centralmente da ArenaTrainingManager.
+        MaxStep = 0;
     }
 
     // Chiamato quando inizia un nuovo episodio.
@@ -106,9 +122,61 @@ public class BumperCarAgent : Agent
         lastThrottle = throttle;
         lastSteer = steer;
 
+        // Valuta lo stato di movimento corrente.
+        EvaluateMovementReward();
+
         // Applica i comandi al controller dell'automobile.
         // Il drift rimane disabilitato nel primo addestramento.
         car.SetInputs(throttle, steer, false);
+    }
+
+    private void EvaluateMovementReward()
+    {
+        // Calcola la velocità in avanti del veicolo.
+        float forwardSpeed = Vector3.Dot(
+            body.linearVelocity,
+            transform.forward
+        );
+
+        // Normalizza la velocità tra 0 e 1.
+        float speedRatio = Mathf.Clamp01(
+            forwardSpeed / targetForwardSpeed
+        );
+
+        // Premia il movimento in avanti.
+        AddReward(movementReward * speedRatio);
+
+        // Penalizza il veicolo se rimane quasi fermo.
+        if (body.linearVelocity.magnitude < stationarySpeedThreshold)
+        {
+            AddReward(-stationaryPenalty);
+        }
+    }
+
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Collider other = collision.collider;
+
+        // Collisione con pareti o ostacoli.
+        if (other.CompareTag("Obstacle"))
+        {
+            AddReward(-obstacleCollisionPenalty);
+        }
+        // Collisione con altre auto.
+        else if (other.CompareTag("Car"))
+        {
+            AddReward(-carCollisionPenalty);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        // Riconosce anche i sensori delle rampe.
+        if (other.CompareTag("Obstacle"))
+        {
+            AddReward(-obstacleCollisionPenalty);
+        }
     }
 
 
@@ -118,7 +186,7 @@ public class BumperCarAgent : Agent
 
         // Valori temporanei per verificare il movimento.
         continuousActions[0] = 0.5f; // Accelerazione
-        continuousActions[1] = 0f;   // Sterzata
+        continuousActions[1] = 1f;   // Sterzata
     }
 
 }
