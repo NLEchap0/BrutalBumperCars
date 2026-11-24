@@ -11,8 +11,8 @@ public class BumperCarController : MonoBehaviour
     private const float InputDeadzone = 0.05f;
     private const float StopThreshold = 0.15f;
     private const float MinSteerSpeed = 0.3f;
-    private const float FallLimitY = -10f;
-    private const float GroundNormalMinY = 0.5f;
+    private const float FallLimitY = -10f; 
+    private const float GroundNormalMinY = 0.78f; // Ignora spigoli > ~38° (bump e paraurti)
     private const float FlatGroundNormalMinY = 0.995f;
     private const float GroundGraceTime = 0.15f;
 
@@ -119,6 +119,12 @@ public class BumperCarController : MonoBehaviour
     [Tooltip("Inclina solo il modello 3D se il Rigidbody ha la rotazione X/Z bloccata.")]
     [SerializeField] private bool tiltVisualOnly = true;
 
+    [Tooltip("Angolo massimo (gradi) di inclinazione consentito su rampe o dossi.")]
+    [SerializeField, Range(5f, 45f)] private float maxGroundTiltAngle = 28f;
+
+    [Tooltip("Layer considerati come terreno per il rilevamento della pendenza.")]
+    [SerializeField] private LayerMask groundLayerMask = ~0;
+
     [Header("Fisica")]
     [Tooltip("Applica un materiale privo di attrito ai collider dell'auto.")]
     [SerializeField] private bool useFrictionlessMaterial = true;
@@ -152,6 +158,8 @@ public class BumperCarController : MonoBehaviour
     public bool IsDrifting { get; private set; }
     public float CurrentSteer => smoothedSteer; // Sterzata smussata (-1 a 1)
     public float EffectiveSteer => effectiveSteer; // Sterzata effettiva con inerzia (-1 a 1)
+    public Quaternion VisualTiltRotation => visualPivot != null ? visualPivot.localRotation : Quaternion.identity;
+    public Transform VisualPivot => visualPivot;
     private bool IsGrounded => Time.fixedTime - lastGroundedTime <= GroundGraceTime;
 
     #endregion
@@ -476,8 +484,31 @@ public class BumperCarController : MonoBehaviour
 
     #region Gestione Terreno & Allineamento
 
+    private void SampleGroundRaycast()
+    {
+        // Lancia una sfera verso il basso dal centro dell'auto per leggere la pendenza reale della pista
+        // ignorando micro-spigoli, giunzioni tra poligoni e altri autoscontri
+        Vector3 origin = transform.position + Vector3.up * 0.4f;
+        float radius = 0.35f;
+        float maxDist = 0.75f;
+
+        if (Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, maxDist, groundLayerMask, QueryTriggerInteraction.Ignore))
+        {
+            // Ignora altri veicoli o oggetti mobili con Rigidbody
+            if (hit.rigidbody == null && hit.normal.y >= GroundNormalMinY)
+            {
+                groundNormal = ClampNormalAngle(hit.normal, maxGroundTiltAngle);
+                lastGroundedTime = Time.fixedTime;
+            }
+        }
+    }
+
     private void EvaluateGroundContacts(Collision collision)
     {
+        // Ignora collisioni con altre auto o ostacoli dinamici (non devono inclinare l'auto come fosse una rampa)
+        if (collision.rigidbody != null)
+            return;
+
         Vector3 normalSum = Vector3.zero;
         int validContacts = 0;
 
@@ -493,9 +524,18 @@ public class BumperCarController : MonoBehaviour
 
         if (validContacts > 0)
         {
-            groundNormal = normalSum.normalized;
+            groundNormal = ClampNormalAngle(normalSum.normalized, maxGroundTiltAngle);
             lastGroundedTime = Time.fixedTime;
         }
+    }
+
+    private static Vector3 ClampNormalAngle(Vector3 normal, float maxAngleDegrees)
+    {
+        float angle = Vector3.Angle(Vector3.up, normal);
+        if (angle <= maxAngleDegrees)
+            return normal;
+
+        return Vector3.RotateTowards(Vector3.up, normal, maxAngleDegrees * Mathf.Deg2Rad, 0f).normalized;
     }
 
     private void UpdateSmoothedGroundNormal(bool grounded)

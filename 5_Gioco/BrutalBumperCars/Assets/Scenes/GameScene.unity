@@ -184,7 +184,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
@@ -386,13 +386,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  carController: {fileID: 1343300433}
+  vehicleRigidbody: {fileID: 1343300430}
+  cockpitCamera: {fileID: 95657846}
   degreesPerMouseUnit: 0.12
   gamepadDegreesPerSecond: 200
   gamepadMinSensitivityMultiplier: 0.8
   gamepadMaxSensitivityMultiplier: 1.8
   gamepadDeadzone: 0.15
-  minPitch: -60
-  maxPitch: 70
+  maxYaw: 110
+  minPitch: -45
+  maxPitch: 60
+  mouseSmoothTime: 0.02
+  gamepadSmoothTime: 0.06
+  neckSuspensionRatio: 0.3
+  neckRecoverySpeed: 14
+  maxNeckLagDegrees: 10
+  cornerRollDegrees: 6
+  driftExtraRollDegrees: 4
+  steerLookAheadYaw: 6.5
+  accelPitchDegrees: 4
+  maxHeadGShift: 0.035
+  dynamicsSmoothSpeed: 9
+  autoCenterLook: 1
+  autoCenterDelay: 1.5
+  autoCenterSpeed: 3.5
+  minSpeedForAutoCenter: 2.5
+  bobFrequency: 14
+  bobAmplitude: 0.008
+  baseFov: 65
+  maxSpeedFov: 82
+  maxReferenceSpeed: 50
+  autoImpactThreshold: 7.5
+  shakeDecay: 4
 --- !u!1 &216190336
 GameObject:
   m_ObjectHideFlags: 0
@@ -1670,6 +1696,10 @@ MonoBehaviour:
   minTiltAngle: 3
   groundNormalSmoothing: 8
   tiltVisualOnly: 1
+  maxGroundTiltAngle: 28
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   useFrictionlessMaterial: 1
   bounciness: 0
 --- !u!1 &1416400492
@@ -2993,7 +3023,7 @@ PrefabInstance:
       value: 180
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
+      propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
