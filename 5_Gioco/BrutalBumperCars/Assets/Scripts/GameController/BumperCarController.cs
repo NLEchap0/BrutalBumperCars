@@ -1,3 +1,10 @@
+/*
+ * NOTE DI SVILUPPO:
+ * I calcoli matematici avanzati, il modello fisico arcade (aderenza laterale, deriva,
+ * sovrasterzo, curve di accelerazione) e le logiche complesse presenti in questo script
+ * sono stati sviluppati con l'ausilio di un'Intelligenza Artificiale.
+ */
+
 using UnityEngine;
 
 /// <summary>
@@ -6,37 +13,23 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BumperCarController : MonoBehaviour
 {
-    #region Costanti & Parametri Interni Fissi
-
     private const float InputDeadzone = 0.05f;
     private const float StopThreshold = 0.15f;
     private const float MinSteerSpeed = 0.3f;
-    private const float FallLimitY = -10f; 
-    private const float GroundNormalMinY = 0.78f; // Ignora spigoli > ~38° (bump e paraurti)
+    private const float FallLimitY = -10f;
+    private const float GroundNormalMinY = 0.78f;
     private const float FlatGroundNormalMinY = 0.995f;
     private const float GroundGraceTime = 0.15f;
 
-    private const float DefaultMaxAcceleration = 28f;
-    private const float DefaultStartAccelerationFactor = 0.25f;
-    private const float DefaultAccelerationEasePower = 2.2f;
-    private const float DefaultMaxSpeed = 50f;
-    private const float DefaultLateralGrip = 20f;
-    private const float DefaultDriftTurnMultiplier = 1.8f;
-    private const float DefaultSlipOversteerFactor = 2.0f;
-
-    #endregion
-
-    #region Inspector - Configurazione
-
     [Header("Movimento & Risposta (Anti-Glide)")]
     [Tooltip("Velocità massima in avanti (m/s).")]
-    [SerializeField, Min(0f)] private float maxSpeed = DefaultMaxSpeed;
+    [SerializeField, Min(0f)] private float maxSpeed = 50f;
 
     [Tooltip("Velocità massima in retromarcia (m/s).")]
     [SerializeField, Min(0f)] private float maxReverseSpeed = 12f;
 
     [Tooltip("Accelerazione massima raggiunta ad alte velocità (m/s²).")]
-    [SerializeField, Min(0f)] private float maxAcceleration = DefaultMaxAcceleration;
+    [SerializeField, Min(0f)] private float maxAcceleration = 28f;
 
     [Tooltip("Accelerazione in retromarcia (m/s²).")]
     [SerializeField, Min(0f)] private float reverseAcceleration = 14f;
@@ -65,7 +58,7 @@ public class BumperCarController : MonoBehaviour
 
     [Header("Aderenza & Drift Dinamico")]
     [Tooltip("Aderenza laterale in guida normale (1/s).")]
-    [SerializeField, Min(0f)] private float lateralGrip = DefaultLateralGrip;
+    [SerializeField, Min(0f)] private float lateralGrip = 20f;
 
     [Tooltip("Aderenza laterale base durante il drift a bassa velocità (1/s).")]
     [SerializeField, Min(0f)] private float driftBaseGrip = 2.5f;
@@ -77,10 +70,10 @@ public class BumperCarController : MonoBehaviour
     [SerializeField, Min(1f)] private float gripTransitionRate = 10f;
 
     [Tooltip("Moltiplicatore di sterzata base durante il drift.")]
-    [SerializeField, Min(1f)] private float driftTurnMultiplier = DefaultDriftTurnMultiplier;
+    [SerializeField, Min(1f)] private float driftTurnMultiplier = 1.8f;
 
     [Tooltip("Sovrasterzo naturale causato dallo scivolamento laterale (alimenta i testacoda liberi).")]
-    [SerializeField, Min(0f)] private float slipOversteerFactor = DefaultSlipOversteerFactor;
+    [SerializeField, Min(0f)] private float slipOversteerFactor = 2.0f;
 
     [Tooltip("Moltiplicatore della velocità massima in drift.")]
     [SerializeField, Range(0.3f, 1f)] private float driftMaxSpeedMultiplier = 0.75f;
@@ -132,10 +125,6 @@ public class BumperCarController : MonoBehaviour
     [Tooltip("Rimbalzo del materiale fisico dell'auto.")]
     [SerializeField, Range(0f, 1f)] private float bounciness = 0f;
 
-    #endregion
-
-    #region Stato Interno & Riferimenti
-
     private Rigidbody body;
     private PhysicsMaterial carMaterial;
     private Transform visualPivot;
@@ -156,15 +145,11 @@ public class BumperCarController : MonoBehaviour
     private Vector3 smoothedGroundNormal = Vector3.up;
 
     public bool IsDrifting { get; private set; }
-    public float CurrentSteer => smoothedSteer; // Sterzata smussata (-1 a 1)
-    public float EffectiveSteer => effectiveSteer; // Sterzata effettiva con inerzia (-1 a 1)
+    public float CurrentSteer => smoothedSteer;
+    public float EffectiveSteer => effectiveSteer;
     public Quaternion VisualTiltRotation => visualPivot != null ? visualPivot.localRotation : Quaternion.identity;
     public Transform VisualPivot => visualPivot;
     private bool IsGrounded => Time.fixedTime - lastGroundedTime <= GroundGraceTime;
-
-    #endregion
-
-    #region Ciclo di Vita Unity
 
     private void Awake()
     {
@@ -185,19 +170,27 @@ public class BumperCarController : MonoBehaviour
             Destroy(carMaterial);
     }
 
+    /// <summary>
+    /// Loop fisico principale: aggiorna terreno, velocità longitudinale, aderenza laterale, sterzo e deportanza.
+    /// </summary>
     private void FixedUpdate()
     {
         if (transform.position.y < FallLimitY)
         {
-            Respawn();
+            ResetForEpisode(spawnPosition, spawnRotation);
             return;
         }
 
-        smoothedSteer = Mathf.MoveTowards(smoothedSteer, inputSteer, steerResponse * Time.fixedDeltaTime);
+        float dt = Time.fixedDeltaTime;
+        smoothedSteer = Mathf.MoveTowards(smoothedSteer, inputSteer, steerResponse * dt);
 
+        SampleGroundRaycast();
         bool grounded = IsGrounded;
-        UpdateSmoothedGroundNormal(grounded);
 
+        Vector3 targetNormal = grounded ? groundNormal : Vector3.up;
+        smoothedGroundNormal = Vector3.Slerp(smoothedGroundNormal, targetNormal, ExpDecay(groundNormalSmoothing, dt)).normalized;
+
+        // Smorza i rimbalzi verticali indesiderati su superfici piane
         Vector3 velocity = body.linearVelocity;
         if (grounded && smoothedGroundNormal.y >= FlatGroundNormalMinY && velocity.y > maxGroundUpSpeed)
             velocity.y = maxGroundUpSpeed;
@@ -205,41 +198,53 @@ public class BumperCarController : MonoBehaviour
         float forwardSpeed = Vector3.Dot(velocity, transform.forward);
         IsDrifting = grounded && inputDrift && velocity.magnitude >= minDriftSpeed;
 
-        UpdateSpeedLimit();
+        float targetMax = IsDrifting ? maxSpeed * driftMaxSpeedMultiplier : maxSpeed;
+        currentMaxSpeedLimit = Mathf.MoveTowards(currentMaxSpeedLimit, targetMax, 10f * dt);
 
         if (grounded)
         {
-            ApplyThrottle(ref velocity, inputThrottle, forwardSpeed);
-            ApplyLateralGrip(ref velocity);
-            ApplySteering(smoothedSteer, velocity);
+            ApplyThrottle(ref velocity, forwardSpeed, dt);
+            ApplyLateralGrip(ref velocity, dt);
+            ApplySteering(velocity, forwardSpeed, dt);
         }
 
         body.linearVelocity = velocity;
 
         if (alignToGround && grounded)
-            AlignRigidbodyToGround();
+            AlignRigidbodyToGround(dt);
 
-        ApplyDownforce(forwardSpeed);
+        // Applica deportanza proporzionale alla velocità per mantenere il veicolo incollato alla pista
+        float force = Mathf.Min(downforce * Mathf.Abs(forwardSpeed), maxDownforceAcceleration);
+        if (force > 0f)
+            body.AddForce(-transform.up * force, ForceMode.Acceleration);
     }
 
+    /// <summary>
+    /// Inclina visivamente il modello 3D della carrozzeria in base alla pendenza del terreno
+    /// quando la rotazione fisica X/Z del Rigidbody è bloccata.
+    /// </summary>
     private void LateUpdate()
     {
-        UpdateVisualTilt();
+        if (visualPivot == null)
+            return;
+
+        Vector3 localUp = IsGrounded
+            ? transform.InverseTransformDirection(smoothedGroundNormal).normalized
+            : Vector3.up;
+
+        Quaternion targetRotation = Vector3.Angle(localUp, Vector3.up) < minTiltAngle
+            ? Quaternion.identity
+            : Quaternion.FromToRotation(Vector3.up, localUp);
+
+        visualPivot.localRotation = Quaternion.Slerp(visualPivot.localRotation, targetRotation, ExpDecay(groundAlignmentSpeed, Time.deltaTime));
     }
 
     private void OnCollisionEnter(Collision collision) => EvaluateGroundContacts(collision);
     private void OnCollisionStay(Collision collision) => EvaluateGroundContacts(collision);
 
-    #endregion
-
-    #region Input Injection API
-
     /// <summary>
-    /// Fornisce gli input di guida al veicolo (richiamato da PlayerCarInput, BotCarInput o AI).
+    /// Riceve gli input normalizzati da PlayerCarInput o dall'AI dei Bot.
     /// </summary>
-    /// <param name="throttle">Valore tra -1 (retro) e 1 (avanti).</param>
-    /// <param name="steer">Valore tra -1 (sinistra) e 1 (destra).</param>
-    /// <param name="drift">Flag attivo per il drift.</param>
     public void SetInputs(float throttle, float steer, bool drift)
     {
         inputThrottle = Mathf.Clamp(throttle, -1f, 1f);
@@ -250,50 +255,38 @@ public class BumperCarController : MonoBehaviour
             body.WakeUp();
     }
 
-    #endregion
-
     /// <summary>
-    /// Ripristina lo stato del veicolo all'inizio di un episodio.
+    /// Ripristina posizione, velocità e stati fisici interni del veicolo (usato per respawn o reset episodio).
     /// </summary>
     public void ResetForEpisode(Vector3 position, Quaternion rotation)
     {
-        // Aggiorna lo spawn di riferimento.
         spawnPosition = position;
         spawnRotation = rotation;
 
-        // Azzera la fisica.
         body.linearVelocity = Vector3.zero;
         body.angularVelocity = Vector3.zero;
-
-        // Riposiziona il Rigidbody.
         body.position = position;
         body.rotation = rotation;
 
-        // Azzera gli input.
         inputThrottle = 0f;
         inputSteer = 0f;
         inputDrift = false;
 
-        // Ripristina gli stati interni del movimento.
         smoothedSteer = 0f;
         effectiveSteer = 0f;
         currentMaxSpeedLimit = maxSpeed;
         currentGrip = lateralGrip;
         IsDrifting = false;
 
-        // Ripristina le informazioni sul terreno.
         groundNormal = Vector3.up;
         smoothedGroundNormal = Vector3.up;
         lastGroundedTime = float.NegativeInfinity;
 
-        // Ripristina l'inclinazione del modello.
         if (visualPivot != null)
             visualPivot.localRotation = Quaternion.identity;
 
         body.WakeUp();
     }
-
-    #region Inizializzazione Fisica
 
     private void InitializePhysics()
     {
@@ -326,6 +319,10 @@ public class BumperCarController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Crea un nodo pivot intermedio e vi sposta tutte le mesh visive, escludendo telecamere e collider
+    /// così da inclinare solo la scocca senza alterare la fisica o il punto di vista.
+    /// </summary>
     private void CreateVisualPivot()
     {
         visualPivot = new GameObject("VisualTilt").transform;
@@ -334,113 +331,96 @@ public class BumperCarController : MonoBehaviour
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
             Transform child = transform.GetChild(i);
-            bool isCameraOrCollider = child.GetComponentInChildren<Camera>(true) != null
-                                   || child.GetComponentInChildren<Collider>(true) != null;
+            bool hasCameraOrCollider = child.GetComponentInChildren<Camera>(true) != null
+                                    || child.GetComponentInChildren<Collider>(true) != null;
 
-            if (child != visualPivot && !isCameraOrCollider)
+            if (child != visualPivot && !hasCameraOrCollider)
                 child.SetParent(visualPivot, true);
         }
     }
 
-    #endregion
-
-    #region Fisica di Guida
-
-    private void UpdateSpeedLimit()
-    {
-        float targetMax = IsDrifting ? maxSpeed * driftMaxSpeedMultiplier : maxSpeed;
-        float rate = 10f;
-        currentMaxSpeedLimit = Mathf.MoveTowards(currentMaxSpeedLimit, targetMax, rate * Time.fixedDeltaTime);
-    }
-
-    private void ApplyThrottle(ref Vector3 velocity, float throttle, float forwardSpeed)
+    /// <summary>
+    /// Gestisce accelerazione progressiva, frenata contro-sterzo, retromarcia e decelerazione anti-glide.
+    /// </summary>
+    private void ApplyThrottle(ref Vector3 velocity, float forwardSpeed, float dt)
     {
         float targetSpeed = 0f;
         float accelRate = coastDeceleration;
 
-        if (Mathf.Abs(throttle) > 0.01f)
+        if (inputThrottle > 0.01f)
         {
-            if (throttle > 0f)
+            if (forwardSpeed < -StopThreshold)
             {
-                targetSpeed = currentMaxSpeedLimit * throttle;
-
-                if (forwardSpeed < -StopThreshold)
-                {
-                    accelRate = braking;
-                    targetSpeed = 0f;
-                }
-                else
-                {
-                    float speedRatio = Mathf.Clamp01(Mathf.Max(forwardSpeed, 0f) / maxSpeed);
-                    float smoothCurve = Mathf.Pow(speedRatio, DefaultAccelerationEasePower);
-                    accelRate = maxAcceleration * Mathf.Lerp(DefaultStartAccelerationFactor, 1f, smoothCurve);
-
-                    if (forwardSpeed > targetSpeed)
-                        accelRate = 8f;
-                }
+                accelRate = braking;
             }
             else
             {
-                targetSpeed = maxReverseSpeed * throttle;
-
-                if (forwardSpeed > StopThreshold)
-                {
-                    accelRate = braking;
-                    targetSpeed = 0f;
-                }
-                else
-                {
-                    accelRate = reverseAcceleration;
-                }
+                targetSpeed = currentMaxSpeedLimit * inputThrottle;
+                // Curva di potenza non lineare (esponente 2.2): partenza morbida e spinta progressiva verso maxSpeed
+                float speedRatio = Mathf.Clamp01(Mathf.Max(forwardSpeed, 0f) / Mathf.Max(maxSpeed, 0.01f));
+                accelRate = forwardSpeed > targetSpeed
+                    ? 8f
+                    : maxAcceleration * Mathf.Lerp(0.25f, 1f, Mathf.Pow(speedRatio, 2.2f));
             }
         }
-        else
+        else if (inputThrottle < -0.01f)
         {
-            targetSpeed = 0f;
-            accelRate = coastDeceleration;
-
-            if (Mathf.Abs(forwardSpeed) < StopThreshold)
+            if (forwardSpeed > StopThreshold)
             {
-                velocity -= transform.forward * forwardSpeed;
-                return;
+                accelRate = braking;
+            }
+            else
+            {
+                targetSpeed = maxReverseSpeed * inputThrottle;
+                accelRate = reverseAcceleration;
             }
         }
+        else if (Mathf.Abs(forwardSpeed) < StopThreshold)
+        {
+            // Azzera completamente il residuo longitudinale per evitare micro-scivolamenti da fermo
+            velocity -= transform.forward * forwardSpeed;
+            return;
+        }
 
-        float newSpeed = Mathf.MoveTowards(forwardSpeed, targetSpeed, accelRate * Time.fixedDeltaTime);
+        float newSpeed = Mathf.MoveTowards(forwardSpeed, targetSpeed, accelRate * dt);
         velocity += transform.forward * (newSpeed - forwardSpeed);
     }
 
-    private void ApplyLateralGrip(ref Vector3 velocity)
+    /// <summary>
+    /// Calcola l'aderenza laterale dinamica e smorza la componente di velocità perpendicolare all'auto.
+    /// </summary>
+    private void ApplyLateralGrip(ref Vector3 velocity, float dt)
     {
-        float totalSpeed = velocity.magnitude;
-        float speedRatio = Mathf.Clamp01(totalSpeed / maxSpeed);
+        float speedRatio = Mathf.Clamp01(velocity.magnitude / Mathf.Max(maxSpeed, 0.01f));
         float steerIntensity = Mathf.Abs(smoothedSteer);
 
         float targetGrip;
-
         if (IsDrifting)
         {
+            // In drift l'aderenza cala non-linearmente al crescere di velocità e angolo di sterzata
             float lossFactor = Mathf.Clamp01(speedRatio * (0.5f + 0.5f * steerIntensity));
             targetGrip = Mathf.Lerp(driftBaseGrip, driftMinHighSpeedGrip, Mathf.Pow(lossFactor, 1.3f));
         }
         else
         {
+            // Perdita progressiva di grip ad altissime velocità per simulare sottosterzo/deriva naturale
             float highSpeedLoss = speedRatio * speedRatio * 0.45f * (0.4f + 0.6f * steerIntensity);
             targetGrip = lateralGrip * (1f - highSpeedLoss);
         }
 
-        currentGrip = Mathf.MoveTowards(currentGrip, targetGrip, gripTransitionRate * Time.fixedDeltaTime);
+        currentGrip = Mathf.MoveTowards(currentGrip, targetGrip, gripTransitionRate * dt);
 
+        // Proietta la velocità sull'asse laterale e la attenua tramite decadimento esponenziale frame-independent
         float lateralSpeed = Vector3.Dot(velocity, transform.right);
-        float damping = ComputeExpDecay(currentGrip, Time.fixedDeltaTime);
-
-        velocity -= transform.right * (lateralSpeed * damping);
+        velocity -= transform.right * (lateralSpeed * ExpDecay(currentGrip, dt));
     }
 
-    private void ApplySteering(float steer, Vector3 velocity)
+    /// <summary>
+    /// Calcola la velocità angolare di imbardata (Yaw) combinando inerzia dello sterzo, direzione e sovrasterzo in drift.
+    /// </summary>
+    private void ApplySteering(Vector3 velocity, float forwardSpeed, float dt)
     {
         Vector3 angular = body.angularVelocity;
-        float forwardSpeed = Vector3.Dot(velocity, transform.forward);
         float totalSpeed = velocity.magnitude;
 
         if (totalSpeed < MinSteerSpeed)
@@ -451,8 +431,8 @@ public class BumperCarController : MonoBehaviour
             return;
         }
 
-        float dynamicSteerInertia = IsDrifting ? steeringInertia * 0.5f : steeringInertia;
-        effectiveSteer = Mathf.MoveTowards(effectiveSteer, steer, dynamicSteerInertia * Time.fixedDeltaTime);
+        float dynamicInertia = IsDrifting ? steeringInertia * 0.5f : steeringInertia;
+        effectiveSteer = Mathf.MoveTowards(effectiveSteer, smoothedSteer, dynamicInertia * dt);
 
         float speedFactor = Mathf.Lerp(lowSpeedTurnFactor, 1f, Mathf.Clamp01(totalSpeed / turnReferenceSpeed));
         float directionSign = forwardSpeed >= -StopThreshold ? 1f : -1f;
@@ -461,40 +441,26 @@ public class BumperCarController : MonoBehaviour
 
         if (IsDrifting)
         {
+            // Calcola il rapporto di imbardata (slipRatio) e aggiunge una coppia di sovrasterzo proporzionale
             float lateralSpeed = Vector3.Dot(velocity, transform.right);
             float slipRatio = Mathf.Abs(lateralSpeed) / Mathf.Max(totalSpeed, 1f);
-            float speedRatio = totalSpeed / maxSpeed;
+            float speedRatio = totalSpeed / Mathf.Max(maxSpeed, 0.01f);
 
-            float oversteerPush = -Mathf.Sign(lateralSpeed) * slipRatio * speedRatio * slipOversteerFactor * turnSpeed;
-            yawRateDeg += oversteerPush * Mathf.Abs(effectiveSteer);
+            yawRateDeg += -Mathf.Sign(lateralSpeed) * slipRatio * speedRatio * slipOversteerFactor * turnSpeed * Mathf.Abs(effectiveSteer);
         }
 
         angular.y = yawRateDeg * Mathf.Deg2Rad;
         body.angularVelocity = angular;
     }
 
-    private void ApplyDownforce(float forwardSpeed)
-    {
-        float force = Mathf.Min(downforce * Mathf.Abs(forwardSpeed), maxDownforceAcceleration);
-        if (force > 0f)
-            body.AddForce(-transform.up * force, ForceMode.Acceleration);
-    }
-
-    #endregion
-
-    #region Gestione Terreno & Allineamento
-
+    /// <summary>
+    /// Esegue uno SphereCast verso il basso per rilevare la normale reale della pista ignorando spigoli e altri veicoli.
+    /// </summary>
     private void SampleGroundRaycast()
     {
-        // Lancia una sfera verso il basso dal centro dell'auto per leggere la pendenza reale della pista
-        // ignorando micro-spigoli, giunzioni tra poligoni e altri autoscontri
         Vector3 origin = transform.position + Vector3.up * 0.4f;
-        float radius = 0.35f;
-        float maxDist = 0.75f;
-
-        if (Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, maxDist, groundLayerMask, QueryTriggerInteraction.Ignore))
+        if (Physics.SphereCast(origin, 0.35f, Vector3.down, out RaycastHit hit, 0.75f, groundLayerMask, QueryTriggerInteraction.Ignore))
         {
-            // Ignora altri veicoli o oggetti mobili con Rigidbody
             if (hit.rigidbody == null && hit.normal.y >= GroundNormalMinY)
             {
                 groundNormal = ClampNormalAngle(hit.normal, maxGroundTiltAngle);
@@ -503,9 +469,11 @@ public class BumperCarController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Media le normali dei punti di contatto statici per aggiornare lo stato di contatto col terreno.
+    /// </summary>
     private void EvaluateGroundContacts(Collision collision)
     {
-        // Ignora collisioni con altre auto o ostacoli dinamici (non devono inclinare l'auto come fosse una rampa)
         if (collision.rigidbody != null)
             return;
 
@@ -529,23 +497,10 @@ public class BumperCarController : MonoBehaviour
         }
     }
 
-    private static Vector3 ClampNormalAngle(Vector3 normal, float maxAngleDegrees)
-    {
-        float angle = Vector3.Angle(Vector3.up, normal);
-        if (angle <= maxAngleDegrees)
-            return normal;
-
-        return Vector3.RotateTowards(Vector3.up, normal, maxAngleDegrees * Mathf.Deg2Rad, 0f).normalized;
-    }
-
-    private void UpdateSmoothedGroundNormal(bool grounded)
-    {
-        Vector3 targetNormal = grounded ? groundNormal : Vector3.up;
-        float t = ComputeExpDecay(groundNormalSmoothing, Time.fixedDeltaTime);
-        smoothedGroundNormal = Vector3.Slerp(smoothedGroundNormal, targetNormal, t).normalized;
-    }
-
-    private void AlignRigidbodyToGround()
+    /// <summary>
+    /// Allinea la rotazione fisica del Rigidbody alla pendenza del terreno (attivo solo se freezeTilt è false).
+    /// </summary>
+    private void AlignRigidbodyToGround(float dt)
     {
         if (freezeTilt || Vector3.Angle(smoothedGroundNormal, Vector3.up) < minTiltAngle)
             return;
@@ -560,58 +515,21 @@ public class BumperCarController : MonoBehaviour
             return;
 
         Quaternion targetRotation = Quaternion.LookRotation(forward.normalized, up);
-        float t = ComputeExpDecay(groundAlignmentSpeed, Time.fixedDeltaTime);
-        body.MoveRotation(Quaternion.Slerp(body.rotation, targetRotation, t));
+        body.MoveRotation(Quaternion.Slerp(body.rotation, targetRotation, ExpDecay(groundAlignmentSpeed, dt)));
     }
 
-    private void UpdateVisualTilt()
+    /// <summary>
+    /// Limita l'angolo massimo tra la normale rilevata e la verticale assoluta per evitare ribaltamenti su pareti/ostacoli.
+    /// </summary>
+    private static Vector3 ClampNormalAngle(Vector3 normal, float maxAngleDegrees)
     {
-        if (visualPivot == null)
-            return;
-
-        Vector3 localUp = IsGrounded
-            ? transform.InverseTransformDirection(smoothedGroundNormal).normalized
-            : Vector3.up;
-
-        Quaternion targetRotation = Vector3.Angle(localUp, Vector3.up) < minTiltAngle
-            ? Quaternion.identity
-            : Quaternion.FromToRotation(Vector3.up, localUp);
-
-        float t = ComputeExpDecay(groundAlignmentSpeed, Time.deltaTime);
-        visualPivot.localRotation = Quaternion.Slerp(visualPivot.localRotation, targetRotation, t);
+        return Vector3.Angle(Vector3.up, normal) <= maxAngleDegrees
+            ? normal
+            : Vector3.RotateTowards(Vector3.up, normal, maxAngleDegrees * Mathf.Deg2Rad, 0f).normalized;
     }
 
-    #endregion
-
-    #region Utility & Respawn
-
-    private void Respawn()
-    {
-
-        ResetForEpisode(spawnPosition, spawnRotation);
-
-        /*body.linearVelocity = Vector3.zero;
-        body.angularVelocity = Vector3.zero;
-        body.position = spawnPosition;
-        body.rotation = spawnRotation;
-
-        inputThrottle = 0f;
-        inputSteer = 0f;
-        inputDrift = false;
-        smoothedSteer = 0f;
-        effectiveSteer = 0f;
-        currentMaxSpeedLimit = maxSpeed;
-        currentGrip = lateralGrip;
-        IsDrifting = false;
-        groundNormal = Vector3.up;
-        smoothedGroundNormal = Vector3.up;
-        lastGroundedTime = float.NegativeInfinity;
-
-        if (visualPivot != null)
-            visualPivot.localRotation = Quaternion.identity;*/
-    }
-
-    private static float ComputeExpDecay(float rate, float deltaTime) => 1f - Mathf.Exp(-rate * deltaTime);
-
-    #endregion
+    /// <summary>
+    /// Fattore di interpolazione esponenziale indipendente dal framerate: 1 - e^(-rate * dt).
+    /// </summary>
+    private static float ExpDecay(float rate, float dt) => 1f - Mathf.Exp(-rate * dt);
 }
