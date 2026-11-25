@@ -184,7 +184,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
@@ -194,6 +194,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
+      propertyPath: m_TagString
+      value: Obstacle
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1558,9 +1566,9 @@ MonoBehaviour:
   - {fileID: 1031960897}
   - {fileID: 552507642}
   playerCar: {fileID: 1343300433}
-  episodePhysicsSteps: 3000
+  episodePhysicsSteps: 7500
   testResetsInEditor: 0
-  logResets: 1
+  logResets: 0
 --- !u!4 &1082358719
 Transform:
   m_ObjectHideFlags: 0
@@ -2724,7 +2732,7 @@ MonoBehaviour:
   - {fileID: 430494071}
   - {fileID: 356826334}
   - {fileID: 1416400493}
-  player: {fileID: 1343300430}
+  player: {fileID: 919132148351114781}
   bots:
   - {fileID: 1661741220}
   - {fileID: 252244272}
@@ -3023,7 +3031,7 @@ PrefabInstance:
       value: 180
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
@@ -3216,7 +3224,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &4038320875852510008
 GameObject:
   m_ObjectHideFlags: 0
@@ -3261,7 +3269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8777194412716760374, guid: 82a67509571f27a49b71d4197f7017f4, type: 3}
       propertyPath: m_BehaviorType
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8935563883213181121, guid: 82a67509571f27a49b71d4197f7017f4, type: 3}
       propertyPath: m_LocalPosition.x

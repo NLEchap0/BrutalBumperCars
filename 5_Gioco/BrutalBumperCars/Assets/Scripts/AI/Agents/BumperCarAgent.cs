@@ -186,7 +186,7 @@ public class BumperCarAgent : Agent
 
         // Valori temporanei per verificare il movimento.
         continuousActions[0] = 0.5f; // Accelerazione
-        continuousActions[1] = 1f;   // Sterzata
+        continuousActions[1] = 0f;   // Sterzata
     }
 
 }
