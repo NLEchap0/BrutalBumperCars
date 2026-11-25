@@ -28,36 +28,34 @@ public class SteeringWheelVisual : MonoBehaviour
 
     private void Awake()
     {
-        if (carController == null)
-            carController = GetComponentInParent<BumperCarController>();
-
-        if (steeringWheelMesh == null)
-            steeringWheelMesh = transform;
+        if (carController == null) carController = GetComponentInParent<BumperCarController>();
+        if (steeringWheelMesh == null) steeringWheelMesh = transform;
 
         initialLocalRotation = steeringWheelMesh.localRotation;
     }
 
     private void OnEnable()
     {
-        // Allinea subito l'angolo all'attivazione/respawn per evitare scatti
         currentVisualAngle = 0f;
         if (steeringWheelMesh != null)
             steeringWheelMesh.localRotation = initialLocalRotation;
     }
 
+    /// <summary>
+    /// Aggiorna la rotazione visiva del volante con interpolazione esponenziale indipendente dal framerate.
+    /// </summary>
     private void LateUpdate()
     {
         if (carController == null || steeringWheelMesh == null)
             return;
 
         float rawSteer = includeDriftInertia ? carController.EffectiveSteer : carController.CurrentSteer;
-        float direction = invertDirection ? -1f : 1f;
-        float targetAngle = rawSteer * maxTurnAngle * direction;
+        float targetAngle = rawSteer * maxTurnAngle * (invertDirection ? -1f : 1f);
 
-        // Smussamento esponenziale fluido in LateUpdate (indipendente dagli FPS)
         float t = 1f - Mathf.Exp(-visualSmoothSpeed * Time.deltaTime);
         currentVisualAngle = Mathf.Lerp(currentVisualAngle, targetAngle, t);
 
-        steeringWheelMesh.localRotation = initialLocalRotation * Quaternion.AngleAxis(currentVisualAngle, rotationAxis);
+        Vector3 axis = rotationAxis.sqrMagnitude > 0.0001f ? rotationAxis.normalized : Vector3.forward;
+        steeringWheelMesh.localRotation = initialLocalRotation * Quaternion.AngleAxis(currentVisualAngle, axis);
     }
 }
