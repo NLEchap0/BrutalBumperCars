@@ -1675,15 +1675,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d45d8e0a0abc4184a8bfc50314ab2e1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 50
+  maxSpeed: 24
   maxReverseSpeed: 12
   maxAcceleration: 28
   reverseAcceleration: 14
   braking: 40
   coastDeceleration: 12
   turnSpeed: 130
-  turnReferenceSpeed: 16
-  lowSpeedTurnFactor: 0.35
+  turnReferenceSpeed: 24
+  lowSpeedTurnFactor: 0.5
   steerResponse: 9
   steeringInertia: 4
   lateralGrip: 20
@@ -3224,7 +3224,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &4038320875852510008
 GameObject:
   m_ObjectHideFlags: 0
