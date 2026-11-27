@@ -48,6 +48,10 @@ public class BumperCarAgent : Agent
     [SerializeField, Min(0f)]
     private float carCollisionPenalty = 0.05f;
 
+    [Header("Debug guida")]
+    [SerializeField] private bool debugDriving = false;
+
+    private float nextDebugTime;
 
     public override void Initialize()
     {
@@ -128,6 +132,22 @@ public class BumperCarAgent : Agent
         // Applica i comandi al controller dell'automobile.
         // Il drift rimane disabilitato nel primo addestramento.
         car.SetInputs(throttle, steer, false);
+
+        if (debugDriving && Time.time >= nextDebugTime)
+        {
+            nextDebugTime = Time.time + 0.25f;
+
+            float forwardSpeed = Vector3.Dot(
+                body.linearVelocity,
+                transform.forward
+            );
+
+            Debug.Log(
+                $"[{name}] Throttle: {throttle:F2} | " +
+                $"Steer: {steer:F2} | " +
+                $"Velocità: {forwardSpeed:F2} m/s"
+            );
+        }
     }
 
     private void EvaluateMovementReward()
