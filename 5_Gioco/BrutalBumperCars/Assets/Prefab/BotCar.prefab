@@ -450,7 +450,7 @@ MonoBehaviour:
   maxGroundTiltAngle: 28
   groundLayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 256
   useFrictionlessMaterial: 1
   bounciness: 0
 --- !u!114 &2933297038748284388
@@ -499,9 +499,9 @@ MonoBehaviour:
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: bf11aced54b61c24e8ca7393fb86b223, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 2
   m_BehaviorName: BumperCar
   TeamId: 0
   m_UseChildSensors: 1
@@ -547,6 +547,7 @@ MonoBehaviour:
   stationaryPenalty: 0.001
   obstacleCollisionPenalty: 0.15
   carCollisionPenalty: 0.01
+  debugDriving: 0
 --- !u!114 &6593201240654251327
 MonoBehaviour:
   m_ObjectHideFlags: 0
