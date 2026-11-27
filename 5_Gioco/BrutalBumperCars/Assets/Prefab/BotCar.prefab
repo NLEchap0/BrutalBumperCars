@@ -95,6 +95,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2608787534969247537}
+  - component: {fileID: 2949898124019470388}
   m_Layer: 0
   m_Name: Volante-centro
   m_TagString: Untagged
@@ -118,6 +119,25 @@ Transform:
   - {fileID: 4955181170353907251}
   m_Father: {fileID: 8935563883213181121}
   m_LocalEulerAnglesHint: {x: -30, y: 180, z: 0}
+--- !u!114 &2949898124019470388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6714346626641112778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cf5c081ac13a204ab85abd678a5d533, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carController: {fileID: 7385225560106132332}
+  steeringWheelMesh: {fileID: 2608787534969247537}
+  maxTurnAngle: 45
+  rotationAxis: {x: 0, y: 0, z: 1}
+  invertDirection: 0
+  visualSmoothSpeed: 12
+  includeDriftInertia: 0
 --- !u!1 &7782011904581345344
 GameObject:
   m_ObjectHideFlags: 0
@@ -418,41 +438,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d45d8e0a0abc4184a8bfc50314ab2e1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 50
-  maxReverseSpeed: 12
-  maxAcceleration: 28
-  reverseAcceleration: 14
-  braking: 40
-  coastDeceleration: 12
-  turnSpeed: 130
-  turnReferenceSpeed: 16
-  lowSpeedTurnFactor: 0.35
-  steerResponse: 9
-  steeringInertia: 4
-  lateralGrip: 20
-  driftBaseGrip: 2.5
-  driftMinHighSpeedGrip: 0.05
-  gripTransitionRate: 10
-  driftTurnMultiplier: 1.8
-  slipOversteerFactor: 2
-  driftMaxSpeedMultiplier: 0.75
-  minDriftSpeed: 5
-  downforce: 1.5
-  maxDownforceAcceleration: 25
-  maxGroundUpSpeed: 1.5
-  centerOfMassHeight: -0.3
-  freezeTilt: 1
-  alignToGround: 1
-  groundAlignmentSpeed: 10
-  minTiltAngle: 3
-  groundNormalSmoothing: 8
-  tiltVisualOnly: 1
-  maxGroundTiltAngle: 28
-  groundLayerMask:
-    serializedVersion: 2
-    m_Bits: 256
-  useFrictionlessMaterial: 1
-  bounciness: 0
 --- !u!114 &2933297038748284388
 MonoBehaviour:
   m_ObjectHideFlags: 0
