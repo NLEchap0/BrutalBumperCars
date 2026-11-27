@@ -184,7 +184,7 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
@@ -1675,41 +1675,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d45d8e0a0abc4184a8bfc50314ab2e1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 24
-  maxReverseSpeed: 12
-  maxAcceleration: 28
-  reverseAcceleration: 14
-  braking: 40
-  coastDeceleration: 12
-  turnSpeed: 130
-  turnReferenceSpeed: 24
-  lowSpeedTurnFactor: 0.5
-  steerResponse: 9
-  steeringInertia: 4
-  lateralGrip: 20
-  driftBaseGrip: 2.5
-  driftMinHighSpeedGrip: 0.05
-  gripTransitionRate: 10
-  driftTurnMultiplier: 1.8
-  slipOversteerFactor: 2
-  driftMaxSpeedMultiplier: 0.75
-  minDriftSpeed: 5
-  downforce: 1.5
-  maxDownforceAcceleration: 25
-  maxGroundUpSpeed: 1.5
-  centerOfMassHeight: -0.3
-  freezeTilt: 1
-  alignToGround: 1
-  groundAlignmentSpeed: 10
-  minTiltAngle: 3
-  groundNormalSmoothing: 8
-  tiltVisualOnly: 1
-  maxGroundTiltAngle: 28
-  groundLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  useFrictionlessMaterial: 1
-  bounciness: 0
 --- !u!1 &1416400492
 GameObject:
   m_ObjectHideFlags: 0
@@ -2309,7 +2274,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!81 &1710550279
 AudioListener:
   m_ObjectHideFlags: 0
@@ -2377,13 +2342,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1710550278}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.48502195, y: -0.4829247, z: 0.5144093, w: 0.5166435}
+  m_LocalPosition: {x: 0, y: 70.68, z: -2.68}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 86.384, y: 0, z: 89.752}
 --- !u!114 &1710550282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3047,7 +3012,7 @@ PrefabInstance:
       value: 180
       objectReference: {fileID: 0}
     - target: {fileID: -7635826562936255635, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: c3747d9e8692fad40814b1edd05f255a, type: 2}
     - target: {fileID: 919132149155446097, guid: a21cc34c03610a34db80c8c37256ce35, type: 3}
@@ -3240,7 +3205,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &4038320875852510008
 GameObject:
   m_ObjectHideFlags: 0
@@ -3277,7 +3242,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7880076365886060548, guid: 82a67509571f27a49b71d4197f7017f4, type: 3}
       propertyPath: debugDriving
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8595771550467820155, guid: 82a67509571f27a49b71d4197f7017f4, type: 3}
       propertyPath: m_Name

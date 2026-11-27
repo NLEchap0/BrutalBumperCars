@@ -48,6 +48,29 @@ public class BumperCarAgent : Agent
     [SerializeField, Min(0f)]
     private float carCollisionPenalty = 0.05f;
 
+    [Header("Stabilità della guida")]
+    [SerializeField, Min(0f)]
+    private float throttleChangePenalty = 0.0002f;
+
+    [SerializeField, Min(0f)]
+    private float directionSwitchPenalty = 0.0007f;
+
+    [SerializeField, Range(0f, 1f)]
+    private float directionSwitchThreshold = 0.25f;
+
+    [Header("Controllo avanzamento")]
+    [SerializeField, Min(0.1f)]
+    private float progressCheckInterval = 1f;
+
+    [SerializeField, Min(0f)]
+    private float minimumProgressDistance = 0.6f;
+
+    [SerializeField, Min(0f)]
+    private float lowProgressPenalty = 0.01f;
+
+    private Vector3 lastProgressPosition;
+    private float progressTimer;
+
     [Header("Debug guida")]
     [SerializeField] private bool debugDriving = false;
 
@@ -74,6 +97,10 @@ public class BumperCarAgent : Agent
         lastSteer = 0f;
 
         car.ResetForEpisode(initialPosition, initialRotation);
+
+        // Ripristina il controllo dell'avanzamento.
+        lastProgressPosition = transform.position;
+        progressTimer = 0f;
     }
 
     // Raccoglie le informazioni che il bot
@@ -122,12 +149,17 @@ public class BumperCarAgent : Agent
         float steer = Mathf.Clamp(
             actions.ContinuousActions[1], -1f, 1f);
 
+        // Valuta i comandi prima di aggiornare
+        // i valori della decisione precedente.
+        EvaluateDrivingStability(throttle);
+
+        // Valuta movimento e avanzamento.
+        EvaluateMovementReward();
+        EvaluateProgress();
+
         // Memorizza gli input per le osservazioni successive.
         lastThrottle = throttle;
         lastSteer = steer;
-
-        // Valuta lo stato di movimento corrente.
-        EvaluateMovementReward();
 
         // Applica i comandi al controller dell'automobile.
         // Il drift rimane disabilitato nel primo addestramento.
@@ -173,6 +205,53 @@ public class BumperCarAgent : Agent
         }
     }
 
+    private void EvaluateDrivingStability(float throttle)
+    {
+        // Quanto è cambiato il comando rispetto
+        // alla decisione precedente?
+        float change = Mathf.Abs(throttle - lastThrottle);
+
+        // Piccola penalità proporzionale al cambiamento.
+        AddReward(-throttleChangePenalty * change);
+
+        // Penalizza un'inversione marcata avanti/retro.
+        bool reversedDirection =
+            Mathf.Abs(throttle) > directionSwitchThreshold &&
+            Mathf.Abs(lastThrottle) > directionSwitchThreshold &&
+            Mathf.Sign(throttle) != Mathf.Sign(lastThrottle);
+
+        if (reversedDirection)
+        {
+            AddReward(-directionSwitchPenalty);
+        }
+    }
+
+    private void EvaluateProgress()
+    {
+        progressTimer += Time.fixedDeltaTime;
+
+        if (progressTimer < progressCheckInterval)
+            return;
+
+        // Calcola lo spostamento orizzontale
+        // rispetto all'ultimo controllo.
+        Vector3 displacement =
+            transform.position - lastProgressPosition;
+
+        displacement.y = 0f;
+
+        float distance = displacement.magnitude;
+
+        // Penalizza le situazioni in cui il bot
+        // rimane praticamente nella stessa zona.
+        if (distance < minimumProgressDistance)
+        {
+            AddReward(-lowProgressPenalty);
+        }
+
+        lastProgressPosition = transform.position;
+        progressTimer = 0f;
+    }
 
     private void OnCollisionEnter(Collision collision)
     {

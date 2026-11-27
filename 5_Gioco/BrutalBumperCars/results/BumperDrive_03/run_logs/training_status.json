@@ -1,0 +1,65 @@
+{
+    "BumperCar": {
+        "checkpoints": [
+            {
+                "steps": 349960,
+                "file_path": "results\\BumperDrive_03\\BumperCar\\BumperCar-349960.onnx",
+                "reward": null,
+                "creation_time": 1795786457.3767521,
+                "auxillary_file_paths": [
+                    "results\\BumperDrive_03\\BumperCar\\BumperCar-349960.pt"
+                ]
+            },
+            {
+                "steps": 399976,
+                "file_path": "results\\BumperDrive_03\\BumperCar\\BumperCar-399976.onnx",
+                "reward": null,
+                "creation_time": 1795786516.8835094,
+                "auxillary_file_paths": [
+                    "results\\BumperDrive_03\\BumperCar\\BumperCar-399976.pt"
+                ]
+            },
+            {
+                "steps": 449992,
+                "file_path": "results\\BumperDrive_03\\BumperCar\\BumperCar-449992.onnx",
+                "reward": null,
+                "creation_time": 1795786579.1436887,
+                "auxillary_file_paths": [
+                    "results\\BumperDrive_03\\BumperCar\\BumperCar-449992.pt"
+                ]
+            },
+            {
+                "steps": 499880,
+                "file_path": "results\\BumperDrive_03\\BumperCar\\BumperCar-499880.onnx",
+                "reward": null,
+                "creation_time": 1795786637.9734557,
+                "auxillary_file_paths": [
+                    "results\\BumperDrive_03\\BumperCar\\BumperCar-499880.pt"
+                ]
+            },
+            {
+                "steps": 500520,
+                "file_path": "results\\BumperDrive_03\\BumperCar\\BumperCar-500520.onnx",
+                "reward": null,
+                "creation_time": 1795786638.0443873,
+                "auxillary_file_paths": [
+                    "results\\BumperDrive_03\\BumperCar\\BumperCar-500520.pt"
+                ]
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 500520,
+            "file_path": "results\\BumperDrive_03\\BumperCar.onnx",
+            "reward": null,
+            "creation_time": 1795786638.0443873,
+            "auxillary_file_paths": [
+                "results\\BumperDrive_03\\BumperCar\\BumperCar-500520.pt"
+            ]
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.3.0",
+        "mlagents_version": "1.2.0.dev0",
+        "torch_version": "2.7.1+cu118"
+    }
+}
